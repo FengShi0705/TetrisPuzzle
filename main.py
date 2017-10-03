@@ -160,9 +160,9 @@ class NodeC(object):
             index_ = shapePosto_index( shape_ , pos_ )
             if withinrange(x_,y_, NodeC.Shape[0], NodeC.Shape[1]):
                 self.score += NodeC.Node_matrix[y_][x_].probability[index_]
-            else:
-                self.score = 0
-                break
+        #    else:
+        #        self.score = 0
+        #        break
 
         return
 

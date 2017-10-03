@@ -15,7 +15,7 @@ import timeit
 #target = [[1, 0, 1, 1], [1, 1, 1, 1], [0, 1, 1, 1], [1, 1, 0, 0]]  # NOTE: in your test, you may not use this example.
 
 # Uncomment the following line to generate a random target shape
-target = utils.generate_target(width=20, height=20, density=0.5)  # NOTE: it is recommended to keep density below 0.8
+target = utils.generate_target(width=20, height=20, density=0.7)  # NOTE: it is recommended to keep density below 0.8
 
 solution,S = Tetris(target)
 

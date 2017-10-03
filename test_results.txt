@@ -1,0 +1,11 @@
+----------- For partial samples (three) --------------
+avg e_main: 52.706027306027316
+avg e_main_prob: 64.4505494505495
+avg e_main_keepscore: 52.54107004107004
+avg e_main_0prob: 111.4243867243867
+
+----------- For solvable samples --------------
+avg e_main: 11.333333333333337
+avg e_main_prob: 11.8
+avg e_main_keepscore: 11.26666666666667
+avg e_main_0prob: 42.16666666666666
