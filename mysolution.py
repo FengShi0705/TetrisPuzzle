@@ -314,38 +314,40 @@ class Partial_samples(object):
 
 
 if __name__=='__main__':
-    with open('null_samples.txt', 'w') as f:
-        for n in range(0,1000):
-            sample = Partial_samples(10,10,1,'Null')
-            sample.fill_square()
-            data = {
-                'T': sample.T.tolist(),
-                'M': sample.M.tolist(),
-                'S': sample.S.tolist()
-            }
-            line = json.dumps(data)
-            line += '\n'
-            f.write(line)
-            #check(sample.T, sample.M, sample.S)
+    with open('10_10.txt', 'w') as f:
+        for prob_blank in np.arange(0.0, 0.6, 0.1):
+            for n in range(0, 100):
+                sample = Create_sample(10, 10, prob_blank)
+                sample.add_pieces()
+                data = {
+                    'T': sample.T.tolist(),
+                    'M': sample.M.tolist(),
+                    'S': sample.S.tolist()
+                }
+                line = json.dumps(data)
+                line += '\n'
+                f.write(line)
+                # check(sample.T,sample.M, sample.S)
 
-    with open('three_samples.txt', 'w') as f:
-        for n in range(0, 1000):
-            sample = Partial_samples(10, 10, 1, 'Three')
-            sample.fill_square()
-            data = {
-                'T': sample.T.tolist(),
-                'M': sample.M.tolist(),
-                'S': sample.S.tolist()
-            }
-            line = json.dumps(data)
-            line += '\n'
-            f.write(line)
-            #check(sample.T, sample.M, sample.S)
+    with open('20_20.txt', 'w') as f:
+        for prob_blank in np.arange(0.0, 0.6, 0.1):
+            for n in range(0, 100):
+                sample = Create_sample(20, 20, prob_blank)
+                sample.add_pieces()
+                data = {
+                    'T': sample.T.tolist(),
+                    'M': sample.M.tolist(),
+                    'S': sample.S.tolist()
+                }
+                line = json.dumps(data)
+                line += '\n'
+                f.write(line)
+                # check(sample.T,sample.M, sample.S)
 
-    with open('full_samples.txt', 'w') as f:
+    with open('50_50.txt', 'w') as f:
         for prob_blank in np.arange(0.0,0.6,0.1):
-            for n in range(0, 1000):
-                sample=Create_sample(10,10,prob_blank)
+            for n in range(0, 100):
+                sample=Create_sample(50,50,prob_blank)
                 sample.add_pieces()
                 data={
                     'T': sample.T.tolist(),

@@ -1,6 +1,10 @@
 # Preprocessing data txt file into numpy array
 import json
 import numpy as np
+
+
+WindowSize = (13,13) # (width, height)
+
 def preprocess(file):
     """
     preprocess file into numpy array
@@ -40,11 +44,13 @@ def processPuzzle(T,S,data):
     return
 
 def processSquare(T,x,y):
-    padT = np.lib.pad(T, 3, 'constant')
-    x_ = x+3
-    y_ = y+3
-    crop = padT[y_-3:y_+4, x_-3:x_+4]
-    flat = crop.reshape(49)
+    half_width = int((WindowSize[0]-1)/2)
+    half_height = int( (WindowSize[1]-1)/2 )
+    padT = np.lib.pad(T, [[half_height],[half_width]] , 'constant')
+    x_ = x + half_width
+    y_ = y + half_height
+    crop = padT[y_-half_height:y_+half_height+1, x_-half_width:x_+half_width+1]
+    flat = crop.reshape(WindowSize[0]*WindowSize[1])
     return flat
 
 
