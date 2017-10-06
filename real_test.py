@@ -36,7 +36,7 @@ for n in range(0,100):
     #sample = Partial_samples(10, 10, 1, 'Three')
     #sample.fill_square()
     #T = sample.T.tolist()
-    T = utils.generate_target(width=10, height=10, density=0.6)
+    T = utils.generate_target(width=50, height=50, density=0.6)
 
     e_main += test(T, main.Tetris)
 
