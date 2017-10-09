@@ -10,6 +10,7 @@
 from main import Tetris
 import utils
 import timeit
+import time
 
 # Example target shape
 #target = [[1, 0, 1, 1], [1, 1, 1, 1], [0, 1, 1, 1], [1, 1, 0, 0]]  # NOTE: in your test, you may not use this example.
@@ -17,7 +18,9 @@ import timeit
 # Uncomment the following line to generate a random target shape
 target = utils.generate_target(width=20, height=20, density=0.7)  # NOTE: it is recommended to keep density below 0.8
 
+begin_time = time.time()
 solution,S = Tetris(target)
+end_time = time.time()
 
 valid, missing, excess, error_pieces = utils.check_solution(target, solution)  # checks if the solution is valid
 
@@ -30,7 +33,7 @@ else:  # if the solution is valid, test time performance and accuracy
     # TIME PERFORMANCE
     # There will be three different values of the parameter 'target' with increasing complexity in real test.
 
-    time_set = timeit.timeit('Tetris({})'.format(target), 'from main import Tetris', number=1)
+    time_set = end_time - begin_time
 
     if time_set > 600:
 

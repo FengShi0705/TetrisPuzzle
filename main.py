@@ -2,6 +2,8 @@ import tensorflow as tf
 from data_preprocessing import processPuzzle,indexto_shape_pos,shapePosto_index,one_to_threeotherpositions
 import numpy as np
 from heapq import heappush, heappop
+import matplotlib.pyplot as plt
+import utils
 
 def calc_prob(batch_x):
     # build graph
@@ -83,13 +85,13 @@ def Tetris(T):
     #probability
     all_probability = calc_prob(inputdata)
 
-    M,S = fill(all_probability, T.shape)
+    M,S = fill(all_probability, T)
 
     return M,S
 
-def fill(all_probability, shape):
-    row = shape[0]
-    col = shape[1]
+def fill(all_probability, T):
+    row = T.shape[0]
+    col = T.shape[1]
     M = np.empty([row, col], object)
     S = np.empty([row,col], object)
     Node_list =[]
@@ -113,11 +115,16 @@ def fill(all_probability, shape):
             heappush(Node_list, (-node.score, node.count, node))
 
 
-    # fill
+    # fill---------
+    # show target
+    plt.ion()
+    fig = plt.figure()
+    ax = utils.showtarget(T,fig)
+
     Pid = 1
     while len(Node_list) > 0:
         (neg_score, c_, node) = heappop(Node_list)
-        if check_and_update(node, M, S, Pid, Node_list):
+        if check_and_update(node, M, S, Pid, Node_list, fig, ax):
             if node.shapeid !=0 :
                 Pid += 1
             print('fill node: x({}), y({}), shape({}), pos({}), and the other corresponding three nodes'.format(node.x, node.y, node.shapeid, node.pos))
@@ -125,6 +132,8 @@ def fill(all_probability, shape):
             node.update_score()
             heappush(Node_list, (-node.score, node.count, node))
 
+    plt.ioff()
+    plt.show()
     return M,S
 
 class NodeC(object):
@@ -175,7 +184,7 @@ def withinrange(x, y, row, col):
 
 
 
-def check_and_update(node, M, S, pid, Node_list):
+def check_and_update(node, M, S, pid, Node_list, fig, ax):
     row, col = M.shape
     sign = True
     info, positions = one_to_threeotherpositions(node.x, node.y, node.shapeid, node.pos)
@@ -200,6 +209,11 @@ def check_and_update(node, M, S, pid, Node_list):
         #remove
         r_node = NodeC.Node_matrix[y][x]
         Node_list.remove( (-r_node.score, r_node.count, r_node) )
+
+    # colornodes for redraw
+    color_nodes = positions[:]
+    color_nodes.append((node.x, node.y))
+    utils.update_ax(fig,color_nodes,ax,pid)
 
     return sign
 
