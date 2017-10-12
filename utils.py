@@ -105,8 +105,8 @@ def showtarget(target,fig):
 
 def update_ax(fig, nodes, ax, pid):
     if len(nodes)==1:
-        #color='gray'
-        return
+        color='gray'
+        #return
     elif len(nodes) == 4:
         color=get_color(pid)
     else:
@@ -115,7 +115,7 @@ def update_ax(fig, nodes, ax, pid):
     for (x,y) in nodes:
         ax.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color=color))
 
-    plt.pause(0.5)
+    plt.pause(0.01)
     return
 
 
