@@ -9,10 +9,10 @@
 
 # Write or import your functions in this file
 
-import solution_v7 as isaac_solution
+import solution_v7_plot as isaac_solution
 
-def Tetris(target):
+def Tetris(target,fig,ax):
 
-    solution = isaac_solution.solution(target)
+    solution = isaac_solution.solution(target,fig,ax)
 
     return solution

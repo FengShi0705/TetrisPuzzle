@@ -1,10 +1,11 @@
 from copy import deepcopy
-
+import utils
+import matplotlib.pyplot as plt
 
 class Solution:
 
     # At the initializer, we declare all the data structures that we will be using
-    def __init__(self, target):
+    def __init__(self, target, fig, ax):
         self.originaltarget = target
         self.target = deepcopy(target)  # the target shape, which we will update with every piece we put
         self.height = len(target)  # number of rows of the target
@@ -18,6 +19,8 @@ class Solution:
         self.score_list = [set() for _ in range(0, 49)]  # a list to quickly access to the lowest scoring path
         self.best_score = None  # a variable that stores the best (lowest) score of the list at every moment
         self.piece_count = 0  # a counter that will be incremented by one with each piece we put
+        self.fig = fig
+        self.ax = ax
 
         # We fill the maps/lists
         for r in range(0, self.height):
@@ -351,7 +354,7 @@ class Solution:
                 # The above condition is always met unless the node is a bridge. The 'not self.second_phase' part
                 # is to avoid checking it if we are still in the first phase, in which gaps are not yet filling gaps
                 score = self.score_map[r][c]
-                if score:# and (r, c) in self.score_list[score]:
+                if score:  # and (r, c) in self.score_list[score]:
                     self.score_list[score].remove((r, c))  # delete from score list
                     self.score_map[r][c] = None  # delete from score map
                 self.path_map[r][c] = None  # delete from path map
@@ -430,12 +433,22 @@ class Solution:
     # Main function, which is the only one that we will call from outside
     def run(self):
 
+
+
         # First phase
         self.fill_map()
         piece = self.get_next_piece()
+
+
         while piece:  # if None, exit loop
             self.put_piece(piece)
             self.update_map(piece)
+
+            # Update plot
+            ally, allx = zip(*list(piece))
+            plotpiece = list(zip(allx, ally))
+            utils.update_ax(self.fig, plotpiece, self.ax, self.piece_count)
+
             piece = self.get_next_piece()
 
         # Second phase (covering the loose blocks)
@@ -446,7 +459,15 @@ class Solution:
         while piece:  # if None, exit loop
             self.put_piece(piece)
             self.update_map(piece)
+
+            # Update plot
+            ally, allx = zip(*list(piece))
+            plotpiece = list(zip(allx, ally))
+            utils.update_ax(self.fig, plotpiece, self.ax, self.piece_count)
+
             piece = self.get_next_piece()
+
+
 
         return self.M
 
@@ -516,9 +537,9 @@ def choose_tetromino(path):
 
 
 # This is the function that we call from outside and which makes the program run
-def solution(target):
+def solution(target,fig,ax):
 
-    sol = Solution(target)
+    sol = Solution(target,fig,ax)
     M = sol.run()
 
     return M

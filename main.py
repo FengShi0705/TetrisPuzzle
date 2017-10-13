@@ -10,7 +10,7 @@ import itertools
 
 Count = itertools.count()
 
-def Tetris(target):
+def Tetris(target,fig,ax):
     # build graph
     tf.reset_default_graph()
     x = tf.placeholder(tf.float32, shape=[None, 49])
@@ -76,7 +76,7 @@ def Tetris(target):
         #probability = prob.eval(feed_dict={
         #    x:batch_x, keep_prob:1.0
         #})
-        tile = Tiling(target, sess, prob, keep_prob, x)
+        tile = Tiling(target, sess, prob, keep_prob, x, fig, ax)
         tile.fill()
 
     return tile.M, tile.S
@@ -84,13 +84,15 @@ def Tetris(target):
 
 class Tiling(object):
 
-    def __init__(self, target, sess, prob_eval, keep_prob, input_x):
+    def __init__(self, target, sess, prob_eval, keep_prob, input_x, fig, ax):
         self.target = np.array(target, dtype=np.float32)
         self.realup_T = deepcopy(self.target)
         self.row = self.target.shape[0]
         self.col = self.target.shape[1]
         self.M = np.empty([self.row, self.col], object)
         self.S = np.empty([self.row, self.col], object)
+        self.fig = fig
+        self.ax = ax
 
         self.session = sess
         self.prob_eval = prob_eval
@@ -131,15 +133,20 @@ class Tiling(object):
     def fill(self):
 
         # show target
-        plt.ion()
-        self.fig = plt.figure()
-        self.ax = utils.showtarget(self.target, self.fig)
+        #plt.ion()
+        #self.fig = plt.figure()
+        #self.ax1,self.ax2 = utils.showtarget(self.target, self.fig)
 
         self.Pid = 1
         while len(NodeC.Node_list) > 0:
             (neg_score, c_, node) = heappop(NodeC.Node_list)
             if (self.M[node.y][node.x] != None) or (node.score != (-neg_score)):
                 continue
+
+            #### ignore the rest fill (0,0) into 0
+            if self.target[node.y][node.x] == 0.0 and node.shapeid == 0:
+                break
+
 
             self.updateAll(node)
             print('fill node: x({}), y({}), shape({}), pos({}), and the other corresponding three nodes'.format(node.x,
@@ -155,8 +162,14 @@ class Tiling(object):
             #    node.update_score()
 
         # finalize figure
-        plt.ioff()
-        plt.show()
+        #plt.ioff()
+        #plt.show()
+        # deal the rest 0
+        for x in range(0,self.col):
+            for y in range(0,self.row):
+                if self.M[y][x]==None:
+                    self.M[y][x] = (0, 0)
+                    self.S[y][x] = (0, 0)
 
         return
 

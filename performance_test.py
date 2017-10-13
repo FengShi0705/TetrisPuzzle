@@ -12,18 +12,65 @@ import utils
 import timeit
 import time
 import mainissac
+import matplotlib.pyplot as plt
+from copy import deepcopy
+import threading
 
-# Example target shape
+class myAlg:
+    def __init__(self,func,target,fig,ax):
+        self.func=func
+        self.target = target
+        self.fig = fig
+        self.ax = ax
+
+    def run(self):
+        begin_time = time.time()
+        self.solution, self.S = self.func(self.target,self.fig, self.ax)
+        end_time = time.time()
+        self.time = end_time - begin_time
+        return
+
+class issacAlg:
+    def __init__(self, func, target, fig, ax):
+        self.func = func
+        self.target = target
+        self.fig = fig
+        self.ax = ax
+
+    def run(self):
+        begin_time = time.time()
+        self.solution = self.func(self.target, self.fig, self.ax)
+        end_time = time.time()
+        self.time = end_time - begin_time
+        return
+
+
+        # Example target shape
 # target = [[1, 0, 0, 0], [1, 1, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]  # NOTE: in your test, you may not use this example.
 #target = [[0,1],[0,1]]
 # Uncomment the following line to generate a random target shape
-target = utils.generate_target(width=10, height=10, density=0.6)  # NOTE: it is recommended to keep density below 0.8
+target = utils.generate_target(width=20, height=20, density=0.6)  # NOTE: it is recommended to keep density below 0.8
+target_ = deepcopy(target)
 
-begin_time = time.time()
-solution,S = Tetris(target)
-end_time = time.time()
+# show target
+plt.ion()
+fig = plt.figure()
+ax1, ax2 = utils.showtarget(target, fig)
 
-valid, missing, excess, error_pieces = utils.check_solution(target, solution)  # checks if the solution is valid
+plt.pause(1)
+time.sleep(1)
+my = myAlg(Tetris,target,fig,ax1)
+issac = issacAlg(mainissac.Tetris,target_,fig,ax2)
+my.run()
+utils.Mark_Wrong_square(target,my.solution,ax1)
+issac.run()
+utils.Mark_Wrong_square(target_,issac.solution,ax2)
+
+# finalize visualisation
+plt.ioff()
+plt.show()
+
+valid, missing, excess, error_pieces = utils.check_solution(target, my.solution)  # checks if the solution is valid
 
 if not valid:
 
@@ -34,7 +81,7 @@ else:  # if the solution is valid, test time performance and accuracy
     # TIME PERFORMANCE
     # There will be three different values of the parameter 'target' with increasing complexity in real test.
 
-    time_set = end_time - begin_time
+    time_set = my.time
 
     if time_set > 600:
 
@@ -70,17 +117,14 @@ else:  # if the solution is valid, test time performance and accuracy
         # Feel free to comment out the following lines if you don't need the visual feedback.
 
         print("Displaying solution...")
-        utils.visualisation(target, solution)
+        utils.visualisation(target, my.solution)
 
 
 
 #----------------
 
-begin_time = time.time()
-solution = mainissac.Tetris(target)
-end_time = time.time()
 
-valid, missing, excess, error_pieces = utils.check_solution(target, solution)  # checks if the solution is valid
+valid, missing, excess, error_pieces = utils.check_solution(target, issac.solution)  # checks if the solution is valid
 
 if not valid:
 
@@ -91,7 +135,7 @@ else:  # if the solution is valid, test time performance and accuracy
     # TIME PERFORMANCE
     # There will be three different values of the parameter 'target' with increasing complexity in real test.
 
-    time_set = end_time - begin_time
+    time_set = issac.time
 
     if time_set > 600:
 
@@ -127,6 +171,6 @@ else:  # if the solution is valid, test time performance and accuracy
         # Feel free to comment out the following lines if you don't need the visual feedback.
 
         print("Displaying solution...")
-        utils.visualisation(target, solution)
+        utils.visualisation(target, issac.solution)
 
 

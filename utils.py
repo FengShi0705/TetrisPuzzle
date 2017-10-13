@@ -16,6 +16,8 @@ from PIL import Image, ImageDraw
 import operator
 import random
 import time
+from matplotlib.lines import Line2D as PatchLine
+
 
 """
  ------------------------------- MAIN UTIL FUNCTIONS ------------------------------- 
@@ -89,24 +91,31 @@ def showtarget(target,fig):
     Ty_len = len(target)
     Tx_len = len(target[0])
     im = Image.new('RGB', (Tx_len, Ty_len), (255, 255, 255))
-    ax = fig.add_subplot(111)
-    ax.set_title('Tiling of Task')
-    ax.set_xlim([-1, Tx_len + 1])
-    ax.set_ylim([-1, Ty_len + 1])
-    ax.invert_yaxis()
-    ax.imshow(im)
+    ax1 = fig.add_subplot(121)
+    ax1.set_title('Deep learning')
+    ax1.set_xlim([-1, Tx_len + 1])
+    ax1.set_ylim([-1, Ty_len + 1])
+    ax1.invert_yaxis()
+    ax1.imshow(im)
+    ax2 = fig.add_subplot(122)
+    ax2.set_title('Human designed algorithm')
+    ax2.set_xlim([-1, Tx_len + 1])
+    ax2.set_ylim([-1, Ty_len + 1])
+    ax2.invert_yaxis()
+    ax2.imshow(im)
     for y in range(Ty_len):
         row = target[y]
         for x in range(Tx_len):
             if row[x] == 1:
-                ax.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color='b'))  # draw a block
+                ax1.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color='b'))  # draw a block
+                ax2.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color='b'))
                 # fig.canvas.draw()
-    return ax
+    return ax1,ax2
 
 def update_ax(fig, nodes, ax, pid):
     if len(nodes)==1:
-        color='gray'
-        #return
+        #color='gray'
+        return
     elif len(nodes) == 4:
         color=get_color(pid)
     else:
@@ -117,6 +126,25 @@ def update_ax(fig, nodes, ax, pid):
 
     plt.pause(0.01)
     return
+
+
+def Mark_Wrong_square(target,solution,ax):
+    T = np.array(target)
+    row,col = T.shape
+    for x in range(0, col):
+        for y in range(0, row):
+            if (target[y][x]<0.5 and solution[y][x]!=(0,0)):
+                line = PatchLine((x , x + 0.88), (y , y + 0.88), color=(0, 0, 0))
+                ax.add_line(line)
+                line = PatchLine((x, x + 0.88), (y + 0.88, y), color=(0, 0, 0))
+                ax.add_line(line)
+            if (target[y][x]>0.5 and solution[y][x]==(0,0)):
+                line = PatchLine((x, x + 0.88), (y, y + 0.88), color=(1, 1, 1))
+                ax.add_line(line)
+                line = PatchLine((x , x + 0.88), (y + 0.88, y ), color=(1, 1, 1))
+                ax.add_line(line)
+
+
 
 
 def get_color(num):  # generate a random color
