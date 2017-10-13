@@ -45,7 +45,7 @@ def processPuzzle(T,S,data):
     return
 
 def processSquare(T,x,y):
-    padT = np.lib.pad(T, [[Half_height],[Half_width]], 'constant')
+    padT = np.lib.pad(T, [[Half_height],[Half_width]], 'constant', constant_values=-1.0)
     x_ = x+Half_width
     y_ = y+Half_height
     crop = padT[y_-Half_height:y_+Half_height+1, x_-Half_width:x_+Half_width+1]

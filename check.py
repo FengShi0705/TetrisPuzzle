@@ -182,7 +182,7 @@ def check(target,M,S):
             row = target[y]
             for x in range(Tx_len):
                 if row[x]==1:
-                    ax1.add_patch(patches.Rectangle((x,y),1,1,color='b'))  # draw a block
+                    ax1.add_patch(patches.Rectangle((x,y),0.88,0.88,color='b'))  # draw a block
         ax1.set_title('The Display of Task')
 
         # --------------- M Display ----------------------
@@ -198,7 +198,7 @@ def check(target,M,S):
             for x in range(Sx_len):
                 shape, num = row[x]
                 if shape!=0:
-                    ax2.add_patch(patches.Rectangle((x,y),1,1,color=get_color(num))) # draw a block
+                    ax2.add_patch(patches.Rectangle((x,y),0.88,0.88,color=get_color(num))) # draw a block
                     if num in wrong_list:
                         if wrong_label_count.setdefault(num,0)==0:
                             ax2.text(x,y+0.8,'{}'.format(num))  # add label to blocks that have wrong shapes
@@ -217,11 +217,11 @@ def check(target,M,S):
             color= list(np.random.rand(3))
             color.append(1.0)
             color=tuple(color)
-            ax3.add_patch(patches.Rectangle((x, y), 1, 1, color=color))
+            ax3.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color=color))
             for p in [0,1,2,3]:
                 if p != pos:
                     (x_,y_) = goldenpos4[shape][p]-goldenpos4[shape][pos]+np.array([x,y])
-                    ax3.add_patch(patches.Rectangle((x_, y_), 1, 1, color=color))
+                    ax3.add_patch(patches.Rectangle((x_, y_), 0.88, 0.88, color=color))
                     allsquares.remove([x_,y_,shape,p])
 
         ax3.set_title('The Display of S')

@@ -4,6 +4,7 @@ import json
 from check import check
 import itertools
 import operator
+import math
 
 # most top(priority) and most left is [0,0],
 #top->down, left->right
@@ -101,6 +102,7 @@ class Create_sample(object):
         """
         self.total_squars=rows*columns
         self.tofill = self.total_squars*(1-percentage)
+        self.maxpieces = math.ceil(self.tofill/4)
         self.PiD = 1
 
         self.T=np.zeros([rows,columns],int)
@@ -111,12 +113,14 @@ class Create_sample(object):
             for y in range(0,rows):
                 self.unused.append((x,y))
         random.shuffle(self.unused)
-        self.unused=self.unused[0:int(self.tofill)]
+        #self.unused=self.unused[0:int(self.tofill)]
 
     def add_pieces(self):
         while len(self.unused)>0:
             piece=fill_piece(self.T,self.S,self.M,self.unused,self.PiD)
             if piece.fill():
+                if self.PiD == self.maxpieces:
+                    break
                 self.PiD += 1
             else:
                 self.unused.pop()
@@ -314,7 +318,7 @@ class Partial_samples(object):
 
 
 if __name__=='__main__':
-    with open('null_samples.txt', 'w') as f:
+    with open('null_samples_v2.txt', 'w') as f:
         for n in range(0,1000):
             sample = Partial_samples(10,10,1,'Null')
             sample.fill_square()
@@ -328,7 +332,7 @@ if __name__=='__main__':
             f.write(line)
             #check(sample.T, sample.M, sample.S)
 
-    with open('three_samples.txt', 'w') as f:
+    with open('three_samples_v2.txt', 'w') as f:
         for n in range(0, 1000):
             sample = Partial_samples(10, 10, 1, 'Three')
             sample.fill_square()
@@ -342,7 +346,7 @@ if __name__=='__main__':
             f.write(line)
             #check(sample.T, sample.M, sample.S)
 
-    with open('full_samples.txt', 'w') as f:
+    with open('full_samples_v2.txt', 'w') as f:
         for prob_blank in np.arange(0.0,0.6,0.1):
             for n in range(0, 1000):
                 sample=Create_sample(10,10,prob_blank)
