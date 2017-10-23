@@ -2,11 +2,8 @@
 import json
 import numpy as np
 
-WindowSize = (7,7)
-Half_width = int((WindowSize[0]-1)/2)
-Half_height = int((WindowSize[1]-1)/2)
 
-def preprocess(file):
+def preprocess(file,WindowSize,Half_width,Half_height,border_padValue):
     """
     preprocess file into numpy array
     :param file: txt file
@@ -19,17 +16,17 @@ def preprocess(file):
             T = info['T']
             T = np.array(T,dtype=np.float32)
             S = info['S']
-            processPuzzle(T,S,data)
+            processPuzzle(T,S,data,WindowSize,Half_width,Half_height, border_padValue)
 
     return data
 
-def processPuzzle(T,S,data):
+def processPuzzle(T,S,data,WindowSize,Half_width,Half_height, border_padValue):
     row = T.shape[0]
     col = T.shape[1]
     if S:
         for x in range(0, col):
             for y in range(0, row):
-                input_data = processSquare(T,x,y)
+                input_data = processSquare(T,x,y,WindowSize,Half_width,Half_height,border_padValue)
                 output_data = np.zeros(77,dtype=np.float32)
                 if S[y][x][0]==0:
                     output_data[76] = 1.0
@@ -40,12 +37,12 @@ def processPuzzle(T,S,data):
     else:
         for x in range(0, col):
             for y in range(0, row):
-                input_data = processSquare(T, x, y)
+                input_data = processSquare(T, x, y,WindowSize,Half_width,Half_height,border_padValue)
                 data.append(input_data)
     return
 
-def processSquare(T,x,y):
-    padT = np.lib.pad(T, [[Half_height],[Half_width]], 'constant', constant_values=-1.0)
+def processSquare(T,x,y,WindowSize,Half_width,Half_height, border_padValue=0.0):
+    padT = np.lib.pad(T, [[Half_height],[Half_width]], 'constant', constant_values = border_padValue)
     x_ = x+Half_width
     y_ = y+Half_height
     crop = padT[y_-Half_height:y_+Half_height+1, x_-Half_width:x_+Half_width+1]

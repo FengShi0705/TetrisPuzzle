@@ -1,5 +1,5 @@
 import tensorflow as tf
-from data_preprocessing import processPuzzle,indexto_shape_pos,shapePosto_index,one_to_threeotherpositions,processSquare,Half_width,Half_height,WindowSize
+from data_preprocessing import processPuzzle,indexto_shape_pos,shapePosto_index,one_to_threeotherpositions,processSquare
 import numpy as np
 from heapq import heappush, heappop
 import matplotlib.pyplot as plt
@@ -10,7 +10,28 @@ import itertools
 
 Count = itertools.count()
 
-def Tetris(target,fig,ax):
+def Tetris_v1(target,fig,ax):
+    """
+    This version:
+    Sample 10*10 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4,4,1,100], conv2d 'SAME', maxpool 'VALID',
+    filter2 [4, 4, 100, 200], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0
+
+    :param target: Target of Task
+    :param fig: plt fig
+    :param ax: plt ax
+    :return: tile solution M and S
+    """
+    # parameters
+    WindowSize = (7, 7)
+    Window_width = WindowSize[0]
+    Window_height = WindowSize[1]
+    Half_width = int((WindowSize[0] - 1) / 2)
+    Half_height = int((WindowSize[1] - 1) / 2)
+    border_padValue = 0.0
+
     # build graph
     tf.reset_default_graph()
     x = tf.placeholder(tf.float32, shape=[None, 49])
@@ -76,15 +97,583 @@ def Tetris(target,fig,ax):
         #probability = prob.eval(feed_dict={
         #    x:batch_x, keep_prob:1.0
         #})
-        tile = Tiling(target, sess, prob, keep_prob, x, fig, ax)
+        tile = Tiling(target, sess, prob, keep_prob, x, fig, ax, WindowSize, Half_width, Half_height, border_padValue)
         tile.fill()
 
     return tile.M, tile.S
 
+def Tetris_v2(target,fig,ax):
+    """
+    This version: training raw Sample 50*50 (including null, three and full samples),
+    Window_Size 7*7, filter1 4*4, filter2 4*4, border padding -1
+
+    :param target: Target of Task
+    :param fig: plt fig
+    :param ax: plt ax
+    :return: tile solution M and S
+    """
+    #parameters
+    WindowSize = (7, 7)
+    Window_width = WindowSize[0]
+    Window_height = WindowSize[1]
+    Half_width = int((WindowSize[0] - 1) / 2)
+    Half_height = int((WindowSize[1] - 1) / 2)
+    border_padValue = -1.0
+
+    # build graph
+    tf.reset_default_graph()
+    x = tf.placeholder(tf.float32, shape=[None, Window_height*Window_width])
+    #y_ = tf.placeholder(tf.float32, shape=[None, 77])
+
+    def weight_variable(shape):
+        initial = tf.truncated_normal(shape, stddev=0.1)
+        return tf.Variable(initial)
+
+    def bias_variable(shape):
+        initial = tf.constant(0.1, shape=shape)
+        return tf.Variable(initial)
+
+    def conv2d(x, W, padding):
+        return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=padding)
+
+    def max_pool_2x2(x, padding):
+        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding=padding)
+
+    # first conv layer
+    W_conv1 = weight_variable([4, 4, 1, 150])
+    b_conv1 = bias_variable([150])
+    x_puzzle = tf.reshape(x, [-1, Window_height, Window_width, 1])
+
+    h_conv1 = tf.nn.relu(conv2d(x_puzzle, W_conv1, 'SAME') + b_conv1)
+    dim_height = Window_height
+    dim_width = Window_width
+
+    h_pool1 = max_pool_2x2(h_conv1,
+                           'SAME')  # output_dim = ceil( (input_dim - (filter_dim -1) ) / stride ) = ceil( (7-(2-1)) / 1 ) = 6
+    dim_height = dim_height
+    dim_width = dim_width
+
+    # second conv layer
+    W_conv2 = weight_variable([4, 4, 150, 300])
+    b_conv2 = bias_variable([300])
+
+    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2, 'SAME') + b_conv2)
+    dim_height = dim_height
+    dim_width = dim_width
+    h_pool2 = max_pool_2x2(h_conv2, 'VALID')
+    dim_height = dim_height - 1
+    dim_width = dim_width - 1
+
+    # densely connected layer
+    W_fc1 = weight_variable([dim_height * dim_width * 300, 3000])
+    b_fc1 = bias_variable([3000])
+    h_pool2_flat = tf.reshape(h_pool2, [-1, dim_height * dim_width * 300])
+    h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+    # dropout layer
+    keep_prob = tf.placeholder(tf.float32)
+    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+    # classifier layer
+    W_fc2 = weight_variable([3000, 77])
+    b_fc2 = weight_variable([77])
+    y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+
+    # softmax and cross_entropy
+    prob = tf.nn.softmax(y_conv)
+
+    # save
+    saver = tf.train.Saver()
+
+    with tf.Session() as sess:
+        # Restore variables from disk.
+        saver.restore(sess, "../TetrisPuzzle_saver/test_model_v3_negborder.ckpt")
+        print("Model restored.")
+        #probability = prob.eval(feed_dict={
+        #    x:batch_x, keep_prob:1.0
+        #})
+        tile = Tiling(target, sess, prob, keep_prob, x, fig, ax, WindowSize, Half_width, Half_height, border_padValue)
+        tile.fill()
+
+    return tile.M, tile.S
+
+def Tetris_v3(target,fig,ax):
+    """
+    This version: training raw Sample 10*10 and 20*20 and 50*50(including only full samples),
+    Window_Size 13*13, filter1 7*7, filter2 4*4
+
+    :param target: Target of Task
+    :param fig: plt fig
+    :param ax: plt ax
+    :return: tile solution M and S
+    """
+    # parameters
+    WindowSize = (13, 13)
+    Window_width = WindowSize[0]
+    Window_height = WindowSize[1]
+    Half_width = int((WindowSize[0] - 1) / 2)
+    Half_height = int((WindowSize[1] - 1) / 2)
+    border_padValue = 0.0
+
+    # build graph
+    tf.reset_default_graph()
+    x = tf.placeholder(tf.float32, shape=[None, Window_width * Window_height])
+
+    # y_ = tf.placeholder(tf.float32, shape=[None, 77])
+
+    def weight_variable(shape):
+        initial = tf.truncated_normal(shape, stddev=0.1)
+        return tf.Variable(initial)
+
+    def bias_variable(shape):
+        initial = tf.constant(0.1, shape=shape)
+        return tf.Variable(initial)
+
+    def conv2d(x, W, padding):
+        return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=padding)
+        # return tf.nn.conv2d(x,W,strides=[1,1,1,1],padding='SAME')
+
+    def max_pool_2x2(x, padding):
+        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding=padding)
+        # return tf.nn.max_pool(x,ksize=[1,2,2,1],strides=[1,1,1,1],padding='VALID')
+
+    # first conv layer
+    W_conv1 = weight_variable([7, 7, 1, 100])
+    b_conv1 = bias_variable([100])
+    x_puzzle = tf.reshape(x, [-1, 13, 13, 1])
+
+    # 'SAME' output_dim = ceil( input_dim / stride )
+    # 'VALID' output_dim = ceil( (input_dim - (filter_dim -1) ) / stride )
+
+    h_conv1 = tf.nn.relu(conv2d(x_puzzle, W_conv1, 'VALID') + b_conv1)  # output_dim = 7
+
+    h_pool1 = max_pool_2x2(h_conv1, 'SAME')  # output_dim = 7
+
+    # second conv layer
+    W_conv2 = weight_variable([4, 4, 100, 200])
+    b_conv2 = bias_variable([200])
+
+    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2, 'SAME') + b_conv2)  # output_dim = 7
+    h_pool2 = max_pool_2x2(h_conv2, 'SAME')  # output_dim = 7
+
+    # densely connected layer
+    W_fc1 = weight_variable([7 * 7 * 200, 3000])
+    b_fc1 = bias_variable([3000])
+    h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 200])
+    h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+    # dropout layer
+    keep_prob = tf.placeholder(tf.float32)
+    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+    # classifier layer
+    W_fc2 = weight_variable([3000, 77])
+    b_fc2 = weight_variable([77])
+    y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+
+    # softmax and cross_entropy
+    prob = tf.nn.softmax(y_conv)
+
+    # save
+    saver = tf.train.Saver()
+
+    with tf.Session() as sess:
+        # Restore variables from disk.
+        saver.restore(sess, "../TetrisPuzzle_saver/bigwindow_test.ckpt")
+        print("Model restored.")
+        #probability = prob.eval(feed_dict={
+        #    x:batch_x, keep_prob:1.0
+        #})
+        tile = Tiling(target, sess, prob, keep_prob, x, fig, ax, WindowSize, Half_width, Half_height, border_padValue)
+        tile.fill()
+
+    return tile.M, tile.S
+
+def Tetris_v4(target,fig,ax):
+    """
+    This version:
+    Window_Size 7*7,
+    Sample 50*50 (including null, three and full samples),
+    filter1 [4,4,1,150], conv2d 'SAME', maxpool 'SAME',
+    filter2 [4,4,150,300], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0,
+
+    :param target: Target of Task
+    :param fig: plt fig
+    :param ax: plt ax
+    :return: tile solution M and S
+    """
+    #parameters
+    WindowSize = (7, 7)
+    Window_width = WindowSize[0]
+    Window_height = WindowSize[1]
+    Half_width = int((WindowSize[0] - 1) / 2)
+    Half_height = int((WindowSize[1] - 1) / 2)
+    border_padValue = 0.0
+
+    # build graph
+    tf.reset_default_graph()
+    x = tf.placeholder(tf.float32, shape=[None, Window_height*Window_width])
+    #y_ = tf.placeholder(tf.float32, shape=[None, 77])
+
+    def weight_variable(shape):
+        initial = tf.truncated_normal(shape, stddev=0.1)
+        return tf.Variable(initial)
+
+    def bias_variable(shape):
+        initial = tf.constant(0.1, shape=shape)
+        return tf.Variable(initial)
+
+    def conv2d(x, W, padding):
+        return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=padding)
+
+    def max_pool_2x2(x, padding):
+        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding=padding)
+
+    # first conv layer
+    W_conv1 = weight_variable([4, 4, 1, 150])
+    b_conv1 = bias_variable([150])
+    x_puzzle = tf.reshape(x, [-1, Window_height, Window_width, 1])
+
+    h_conv1 = tf.nn.relu(conv2d(x_puzzle, W_conv1, 'SAME') + b_conv1)
+    dim_height = Window_height
+    dim_width = Window_width
+
+    h_pool1 = max_pool_2x2(h_conv1,
+                           'SAME')  # output_dim = ceil( (input_dim - (filter_dim -1) ) / stride ) = ceil( (7-(2-1)) / 1 ) = 6
+    dim_height = dim_height
+    dim_width = dim_width
+
+    # second conv layer
+    W_conv2 = weight_variable([4, 4, 150, 300])
+    b_conv2 = bias_variable([300])
+
+    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2, 'SAME') + b_conv2)
+    dim_height = dim_height
+    dim_width = dim_width
+    h_pool2 = max_pool_2x2(h_conv2, 'VALID')
+    dim_height = dim_height - 1
+    dim_width = dim_width - 1
+
+    # densely connected layer
+    W_fc1 = weight_variable([dim_height * dim_width * 300, 3000])
+    b_fc1 = bias_variable([3000])
+    h_pool2_flat = tf.reshape(h_pool2, [-1, dim_height * dim_width * 300])
+    h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+    # dropout layer
+    keep_prob = tf.placeholder(tf.float32)
+    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+    # classifier layer
+    W_fc2 = weight_variable([3000, 77])
+    b_fc2 = weight_variable([77])
+    y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+
+    # softmax and cross_entropy
+    prob = tf.nn.softmax(y_conv)
+
+    # save
+    saver = tf.train.Saver()
+
+    with tf.Session() as sess:
+        # Restore variables from disk.
+        saver.restore(sess, "../TetrisPuzzle_saver/test_v4.ckpt")
+        print("Model restored.")
+        #probability = prob.eval(feed_dict={
+        #    x:batch_x, keep_prob:1.0
+        #})
+        tile = Tiling(target, sess, prob, keep_prob, x, fig, ax, WindowSize, Half_width, Half_height, border_padValue)
+        tile.fill()
+
+    return tile.M, tile.S
+
+def Tetris_v5(target,fig,ax):
+    """
+    This version:
+    Sample 10*10 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4,4,1,150], conv2d 'SAME', maxpool 'SAME',
+    filter2 [4,4,150,300], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0,
+
+    :param target: Target of Task
+    :param fig: plt fig
+    :param ax: plt ax
+    :return: tile solution M and S
+    """
+    #parameters
+    WindowSize = (7, 7)
+    Window_width = WindowSize[0]
+    Window_height = WindowSize[1]
+    Half_width = int((WindowSize[0] - 1) / 2)
+    Half_height = int((WindowSize[1] - 1) / 2)
+    border_padValue = 0.0
+
+    # build graph
+    tf.reset_default_graph()
+    x = tf.placeholder(tf.float32, shape=[None, Window_height*Window_width])
+    #y_ = tf.placeholder(tf.float32, shape=[None, 77])
+
+    def weight_variable(shape):
+        initial = tf.truncated_normal(shape, stddev=0.1)
+        return tf.Variable(initial)
+
+    def bias_variable(shape):
+        initial = tf.constant(0.1, shape=shape)
+        return tf.Variable(initial)
+
+    def conv2d(x, W, padding):
+        return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=padding)
+
+    def max_pool_2x2(x, padding):
+        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding=padding)
+
+    # first conv layer
+    W_conv1 = weight_variable([4, 4, 1, 150])
+    b_conv1 = bias_variable([150])
+    x_puzzle = tf.reshape(x, [-1, Window_height, Window_width, 1])
+
+    h_conv1 = tf.nn.relu(conv2d(x_puzzle, W_conv1, 'SAME') + b_conv1)
+    dim_height = Window_height
+    dim_width = Window_width
+
+    h_pool1 = max_pool_2x2(h_conv1,
+                           'SAME')  # output_dim = ceil( (input_dim - (filter_dim -1) ) / stride ) = ceil( (7-(2-1)) / 1 ) = 6
+    dim_height = dim_height
+    dim_width = dim_width
+
+    # second conv layer
+    W_conv2 = weight_variable([4, 4, 150, 300])
+    b_conv2 = bias_variable([300])
+
+    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2, 'SAME') + b_conv2)
+    dim_height = dim_height
+    dim_width = dim_width
+    h_pool2 = max_pool_2x2(h_conv2, 'VALID')
+    dim_height = dim_height - 1
+    dim_width = dim_width - 1
+
+    # densely connected layer
+    W_fc1 = weight_variable([dim_height * dim_width * 300, 3000])
+    b_fc1 = bias_variable([3000])
+    h_pool2_flat = tf.reshape(h_pool2, [-1, dim_height * dim_width * 300])
+    h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+    # dropout layer
+    keep_prob = tf.placeholder(tf.float32)
+    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+    # classifier layer
+    W_fc2 = weight_variable([3000, 77])
+    b_fc2 = weight_variable([77])
+    y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+
+    # softmax and cross_entropy
+    prob = tf.nn.softmax(y_conv)
+
+    # save
+    saver = tf.train.Saver()
+
+    with tf.Session() as sess:
+        # Restore variables from disk.
+        saver.restore(sess, "../TetrisPuzzle_saver/test_v5.ckpt")
+        print("Model restored.")
+        #probability = prob.eval(feed_dict={
+        #    x:batch_x, keep_prob:1.0
+        #})
+        tile = Tiling(target, sess, prob, keep_prob, x, fig, ax, WindowSize, Half_width, Half_height, border_padValue)
+        tile.fill()
+
+    return tile.M, tile.S
+
+def Tetris_v6(target,fig,ax):
+    """
+    This version:
+    Sample 10*10 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4,4,1,100], conv2d 'SAME', maxpool 'VALID',
+    filter2 [4, 4, 100, 200], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0
+
+    :param target: Target of Task
+    :param fig: plt fig
+    :param ax: plt ax
+    :return: tile solution M and S
+    """
+    # parameters
+    WindowSize = (7, 7)
+    Window_width = WindowSize[0]
+    Window_height = WindowSize[1]
+    Half_width = int((WindowSize[0] - 1) / 2)
+    Half_height = int((WindowSize[1] - 1) / 2)
+    border_padValue = 0.0
+
+    # build graph
+    tf.reset_default_graph()
+    x = tf.placeholder(tf.float32, shape=[None, 49])
+    #y_ = tf.placeholder(tf.float32, shape=[None, 77])
+
+    def weight_variable(shape):
+        initial = tf.truncated_normal(shape, stddev=0.1)
+        return tf.Variable(initial)
+
+    def bias_variable(shape):
+        initial = tf.constant(0.1, shape=shape)
+        return tf.Variable(initial)
+
+    def conv2d(x, W):
+        return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+    def max_pool_2x2(x):
+        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding='VALID')
+
+    # first conv layer
+    W_conv1 = weight_variable([4, 4, 1, 100])
+    b_conv1 = bias_variable([100])
+    x_puzzle = tf.reshape(x, [-1, 7, 7, 1])
+
+    h_conv1 = tf.nn.relu(conv2d(x_puzzle, W_conv1) + b_conv1)  # output_dim = ceil( input_dim / stride ) = 7/1 = 7
+
+    h_pool1 = max_pool_2x2(
+        h_conv1)  # output_dim = ceil( (input_dim - (filter_dim -1) ) / stride ) = ceil( (7-(2-1)) / 1 ) = 6
+
+    # second conv layer
+    W_conv2 = weight_variable([4, 4, 100, 200])
+    b_conv2 = bias_variable([200])
+
+    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)  # output_dim = ceil( input_dim /stride   ) = 6 / 1 = 6
+    h_pool2 = max_pool_2x2(
+        h_conv2)  # output_dim = ceil ( ( input_dim- (filter-1) ) / stride ) = ceil( (6 - (2-1)) / 1 ) = 5
+
+    # densely connected layer
+    W_fc1 = weight_variable([5 * 5 * 200, 2000])
+    b_fc1 = bias_variable([2000])
+    h_pool2_flat = tf.reshape(h_pool2, [-1, 5 * 5 * 200])
+    h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+    # dropout layer
+    keep_prob = tf.placeholder(tf.float32)
+    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+    # classifier layer
+    W_fc2 = weight_variable([2000, 77])
+    b_fc2 = weight_variable([77])
+    y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+
+    # softmax and cross_entropy
+    prob = tf.nn.softmax(y_conv)
+
+    # save
+    saver = tf.train.Saver()
+
+    with tf.Session() as sess:
+        # Restore variables from disk.
+        saver.restore(sess, "../TetrisPuzzle_saver/test_v6.ckpt")
+        print("Model restored.")
+        #probability = prob.eval(feed_dict={
+        #    x:batch_x, keep_prob:1.0
+        #})
+        tile = Tiling(target, sess, prob, keep_prob, x, fig, ax, WindowSize, Half_width, Half_height, border_padValue)
+        tile.fill()
+
+    return tile.M, tile.S
+
+def Tetris_v7(target,fig,ax):
+    """
+    This version:
+    Sample 50*50 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4,4,1,100], conv2d 'SAME', maxpool 'VALID',
+    filter2 [4, 4, 100, 200], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0
+
+    :param target: Target of Task
+    :param fig: plt fig
+    :param ax: plt ax
+    :return: tile solution M and S
+    """
+    # parameters
+    WindowSize = (7, 7)
+    Window_width = WindowSize[0]
+    Window_height = WindowSize[1]
+    Half_width = int((WindowSize[0] - 1) / 2)
+    Half_height = int((WindowSize[1] - 1) / 2)
+    border_padValue = 0.0
+
+    # build graph
+    tf.reset_default_graph()
+    x = tf.placeholder(tf.float32, shape=[None, 49])
+    #y_ = tf.placeholder(tf.float32, shape=[None, 77])
+
+    def weight_variable(shape):
+        initial = tf.truncated_normal(shape, stddev=0.1)
+        return tf.Variable(initial)
+
+    def bias_variable(shape):
+        initial = tf.constant(0.1, shape=shape)
+        return tf.Variable(initial)
+
+    def conv2d(x, W):
+        return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+
+    def max_pool_2x2(x):
+        return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 1, 1, 1], padding='VALID')
+
+    # first conv layer
+    W_conv1 = weight_variable([4, 4, 1, 100])
+    b_conv1 = bias_variable([100])
+    x_puzzle = tf.reshape(x, [-1, 7, 7, 1])
+
+    h_conv1 = tf.nn.relu(conv2d(x_puzzle, W_conv1) + b_conv1)  # output_dim = ceil( input_dim / stride ) = 7/1 = 7
+
+    h_pool1 = max_pool_2x2(
+        h_conv1)  # output_dim = ceil( (input_dim - (filter_dim -1) ) / stride ) = ceil( (7-(2-1)) / 1 ) = 6
+
+    # second conv layer
+    W_conv2 = weight_variable([4, 4, 100, 200])
+    b_conv2 = bias_variable([200])
+
+    h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)  # output_dim = ceil( input_dim /stride   ) = 6 / 1 = 6
+    h_pool2 = max_pool_2x2(
+        h_conv2)  # output_dim = ceil ( ( input_dim- (filter-1) ) / stride ) = ceil( (6 - (2-1)) / 1 ) = 5
+
+    # densely connected layer
+    W_fc1 = weight_variable([5 * 5 * 200, 2000])
+    b_fc1 = bias_variable([2000])
+    h_pool2_flat = tf.reshape(h_pool2, [-1, 5 * 5 * 200])
+    h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+    # dropout layer
+    keep_prob = tf.placeholder(tf.float32)
+    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+    # classifier layer
+    W_fc2 = weight_variable([2000, 77])
+    b_fc2 = weight_variable([77])
+    y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+
+    # softmax and cross_entropy
+    prob = tf.nn.softmax(y_conv)
+
+    # save
+    saver = tf.train.Saver()
+
+    with tf.Session() as sess:
+        # Restore variables from disk.
+        saver.restore(sess, "../TetrisPuzzle_saver/test_v7.ckpt")
+        print("Model restored.")
+        #probability = prob.eval(feed_dict={
+        #    x:batch_x, keep_prob:1.0
+        #})
+        tile = Tiling(target, sess, prob, keep_prob, x, fig, ax, WindowSize, Half_width, Half_height, border_padValue)
+        tile.fill()
+
+    return tile.M, tile.S
 
 class Tiling(object):
 
-    def __init__(self, target, sess, prob_eval, keep_prob, input_x, fig, ax):
+    def __init__(self, target, sess, prob_eval, keep_prob, input_x, fig, ax, WindowSize, Half_width, Half_height, border_padValue):
         self.target = np.array(target, dtype=np.float32)
         self.realup_T = deepcopy(self.target)
         self.row = self.target.shape[0]
@@ -93,6 +682,10 @@ class Tiling(object):
         self.S = np.empty([self.row, self.col], object)
         self.fig = fig
         self.ax = ax
+        self.WindowSize = WindowSize
+        self.Half_width = Half_width
+        self.Half_height = Half_height
+        self.border_padValue = border_padValue
 
         self.session = sess
         self.prob_eval = prob_eval
@@ -101,7 +694,7 @@ class Tiling(object):
 
         #preprocess data
         inputdata=[]
-        processPuzzle(self.target,None,inputdata)
+        processPuzzle(self.target,None,inputdata,self.WindowSize,self.Half_width,self.Half_height, self.border_padValue)
         inputdata = np.array(inputdata)
 
         #probability
@@ -208,10 +801,10 @@ class Tiling(object):
 
         #update node prob and score
         allx,ally = zip(*positions)
-        x_prob_low = min(allx) - Half_width
-        x_prob_up = max(allx) + Half_width
-        y_prob_low = min(ally) - Half_height
-        y_prob_up = max(ally) + Half_height
+        x_prob_low = min(allx) - self.Half_width
+        x_prob_up = max(allx) + self.Half_width
+        y_prob_low = min(ally) - self.Half_height
+        y_prob_up = max(ally) + self.Half_height
         self.update_range_probability_score(x_prob_low, x_prob_up, y_prob_low, y_prob_up)
         #calc node score
         self.calc_range_score(x_prob_low, x_prob_up, y_prob_low, y_prob_up)
@@ -223,7 +816,7 @@ class Tiling(object):
             for upy in range( max(0, yl), min(self.row, yu  + 1)):
                 if self.M[upy][upx] == None:
                     upnode = NodeC.Node_matrix[upy][upx]
-                    upnode.update_prob()
+                    upnode.update_prob(self.WindowSize,self.Half_width,self.Half_height,self.border_padValue)
 
         for upx in range(max(0, xl), min(self.col, xu + 1)):
             for upy in range(max(0, yl), min(self.row, yu + 1)):
@@ -288,8 +881,8 @@ class NodeC(object):
         self.sort_prob.sort(key=lambda s:s[0])
 
 
-    def update_prob(self):
-        ipt_x = processSquare(NodeC.realup_T, self.x,self.y)
+    def update_prob(self,WindowSize,Half_width,Half_height,border_padValue):
+        ipt_x = processSquare(NodeC.realup_T, self.x,self.y,WindowSize,Half_width,Half_height,border_padValue)
         ipt_x = ipt_x.reshape(-1, WindowSize[0]*WindowSize[1])
         outputy = NodeC.session.run(NodeC.prob_eval, feed_dict={NodeC.inputx:ipt_x, NodeC.keep_prob:1.0} )
         self.probability = outputy[0]

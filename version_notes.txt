@@ -1,0 +1,68 @@
+Results:
+
+v1. Sample 10*10 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4,4,1,100], conv2d 'SAME', maxpool 'VALID',
+    filter2 [4, 4, 100, 200], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0
+   Nerual Network traning Accuracy:
+   Nerual Network test Accuracy:
+   Performance test:
+
+v2. Sample 50*50 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4, 4, 1, 150], conv2d 'SAME', maxpool 'SAME',
+    filter2 [4, 4, 150, 300], conv2d 'SAME', maxpool 'VALID',
+    border padding -1.0,
+    Nerual Network traning Accuracy:
+    Nerual Network test Accuracy:
+    Performance test: really Bad, can not tile three block with one piece!!
+
+v3. Sample 10*10 and 20*20 and 50*50(including only full samples),
+    Window_Size 13*13,
+    filter1 [7, 7, 1, 100], conv2d 'VALID', maxpool 'SAME',
+    filter2 [4, 4, 100, 200], conv2d 'SAME', maxpool 'SAME',
+    border padding 0.0,
+   Nerual Network traning Accuracy:
+   Nerual Network test Accuracy:
+   Performance test:
+
+v4. Sample 50*50 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4,4,1,150], conv2d 'SAME', maxpool 'SAME',
+    filter2 [4,4,150,300], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0,
+    Nerual Network traning Accuracy:
+    Nerual Network test Accuracy:
+    Performance test:
+
+v5. Sample 10*10 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4,4,1,150], conv2d 'SAME', maxpool 'SAME',
+    filter2 [4,4,150,300], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0,
+    Nerual Network traning Accuracy:
+    Nerual Network test Accuracy:
+    Performance test:
+
+v6. Sample 10*10 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4,4,1,100], conv2d 'SAME', maxpool 'VALID',
+    filter2 [4, 4, 100, 200], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0
+    Nerual Network traning Accuracy:
+    Nerual Network test Accuracy:
+    Performance test:
+
+v7. Sample 50*50 (including null, three and full samples),
+    Window_Size 7*7,
+    filter1 [4,4,1,100], conv2d 'SAME', maxpool 'VALID',
+    filter2 [4, 4, 100, 200], conv2d 'SAME', maxpool 'VALID',
+    border padding 0.0
+    Nerual Network traning Accuracy:
+    Nerual Network test Accuracy:
+    Performance test:
+
+
+Note:
+The raw sample size is affecting the Nerual Network accuracy.

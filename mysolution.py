@@ -318,9 +318,9 @@ class Partial_samples(object):
 
 
 if __name__=='__main__':
-    with open('null_samples_v2.txt', 'w') as f:
-        for n in range(0,1000):
-            sample = Partial_samples(10,10,1,'Null')
+    with open('null_samples_50x50_100samples.txt', 'w') as f:
+        for n in range(0,100):
+            sample = Partial_samples(50,50,1,'Null')
             sample.fill_square()
             data = {
                 'T': sample.T.tolist(),
@@ -332,9 +332,9 @@ if __name__=='__main__':
             f.write(line)
             #check(sample.T, sample.M, sample.S)
 
-    with open('three_samples_v2.txt', 'w') as f:
-        for n in range(0, 1000):
-            sample = Partial_samples(10, 10, 1, 'Three')
+    with open('three_samples_50x50_100samples.txt', 'w') as f:
+        for n in range(0, 100):
+            sample = Partial_samples(50, 50, 1, 'Three')
             sample.fill_square()
             data = {
                 'T': sample.T.tolist(),
@@ -346,10 +346,10 @@ if __name__=='__main__':
             f.write(line)
             #check(sample.T, sample.M, sample.S)
 
-    with open('full_samples_v2.txt', 'w') as f:
+    with open('full_samples_50x50_600samples.txt', 'w') as f:
         for prob_blank in np.arange(0.0,0.6,0.1):
-            for n in range(0, 1000):
-                sample=Create_sample(10,10,prob_blank)
+            for n in range(0, 100):
+                sample=Create_sample(50,50,prob_blank)
                 sample.add_pieces()
                 data={
                     'T': sample.T.tolist(),

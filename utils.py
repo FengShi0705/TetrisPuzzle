@@ -114,8 +114,8 @@ def showtarget(target,fig):
 
 def update_ax(fig, nodes, ax, pid):
     if len(nodes)==1:
-        #color='gray'
-        return
+        color='gray'
+        #return
     elif len(nodes) == 4:
         color=get_color(pid)
     else:

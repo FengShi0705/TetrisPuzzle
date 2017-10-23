@@ -7,7 +7,7 @@
 # Last updated: 13th September 2017
 # ####################################################
 
-from main import Tetris
+from main import Tetris_v1,Tetris_v2,Tetris_v3,Tetris_v4,Tetris_v5,Tetris_v6,Tetris_v7
 import utils
 import timeit
 import time
@@ -46,8 +46,9 @@ class issacAlg:
 
 
         # Example target shape
-# target = [[1, 0, 0, 0], [1, 1, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]  # NOTE: in your test, you may not use this example.
-#target = [[0,1],[0,1]]
+#target = [[1, 0, 0, 0], [1, 1, 1, 1], [1, 0, 1, 1], [1, 1, 1, 0]]  # NOTE: in your test, you may not use this example.
+#target = [[1,0],[1,1]]
+#target = [[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,1,1,0,0,0],[0,0,0,1,1,0,0,0,0],[0,0,0,1,1,0,0,0,0],[0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]
 # Uncomment the following line to generate a random target shape
 target = utils.generate_target(width=20, height=20, density=0.6)  # NOTE: it is recommended to keep density below 0.8
 target_ = deepcopy(target)
@@ -59,7 +60,7 @@ ax1, ax2 = utils.showtarget(target, fig)
 
 plt.pause(1)
 time.sleep(1)
-my = myAlg(Tetris,target,fig,ax1)
+my = myAlg(Tetris_v7,target,fig,ax1)
 issac = issacAlg(mainissac.Tetris,target_,fig,ax2)
 my.run()
 utils.Mark_Wrong_square(target,my.solution,ax1)
