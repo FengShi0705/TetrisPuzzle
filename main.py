@@ -742,10 +742,10 @@ class Tiling(object):
 
 
             self.updateAll(node)
-            print('fill node: x({}), y({}), shape({}), pos({}), and the other corresponding three nodes'.format(node.x,
-                                                                                                                node.y,
-                                                                                                                node.shapeid,
-                                                                                                                node.pos))
+            #print('fill node: x({}), y({}), shape({}), pos({}), and the other corresponding three nodes'.format(node.x,
+                                                                                                                #node.y,
+                                                                                                                #node.shapeid,
+                                                                                                                #node.pos))
 
             #if self.updateAll(node):
             #    if node.shapeid !=0 :
@@ -797,7 +797,7 @@ class Tiling(object):
 
 
         # colornodes for redraw
-        utils.update_ax(self.fig, positions, self.ax, pid)
+        # utils.update_ax(self.fig, positions, self.ax, pid)
 
         #update node prob and score
         allx,ally = zip(*positions)

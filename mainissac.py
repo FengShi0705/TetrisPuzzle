@@ -15,4 +15,4 @@ def Tetris(target,fig,ax):
 
     solution = isaac_solution.solution(target,fig,ax)
 
-    return solution
+    return solution, 0

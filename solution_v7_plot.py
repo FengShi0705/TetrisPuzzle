@@ -447,7 +447,7 @@ class Solution:
             # Update plot
             ally, allx = zip(*list(piece))
             plotpiece = list(zip(allx, ally))
-            utils.update_ax(self.fig, plotpiece, self.ax, self.piece_count)
+            # utils.update_ax(self.fig, plotpiece, self.ax, self.piece_count)
 
             piece = self.get_next_piece()
 
@@ -463,7 +463,7 @@ class Solution:
             # Update plot
             ally, allx = zip(*list(piece))
             plotpiece = list(zip(allx, ally))
-            utils.update_ax(self.fig, plotpiece, self.ax, self.piece_count)
+            # utils.update_ax(self.fig, plotpiece, self.ax, self.piece_count)
 
             piece = self.get_next_piece()
 
