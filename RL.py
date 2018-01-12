@@ -1,5 +1,7 @@
 import numpy as np
 import tensorflow as tf
+from data_preprocessing import Goldenpositions
+from copy import deepcopy
 
 def build_neuralnetwork(height,width):
     x = tf.placeholder(tf.float32,shape= [None,width*height], name='input_puzzles')
@@ -88,3 +90,135 @@ def build_neuralnetwork(height,width):
 
     with tf.Session() as sess:
         return sess
+
+
+
+
+class node(object):
+
+    def __init__(self,state,table):
+        self.table = table
+        self.state = state
+        self.expanded = False
+        self.row = self.state.shape[0]
+        self.col = self.state.shape[1]
+        self.N = 0
+        self.Q = 0.0
+        self.W = 0.0
+
+
+    def check_explore(self):
+        """
+        self.terminal indicates whether this state is terminal
+        self.R is the immediate reward arriving this state
+        :return: (terminal, reword)
+         terminal: true if end, otherwise false
+         R: if terminal: -1 or 1,
+                  else not terminal, 0
+        """
+        self.expanded = True
+        for y in range(0,self.row):
+            for x in range(0,self.col):
+                if self.state[y][x]==1:
+                    self.fetch_children(x,y)
+                    if len(self.children)>0:
+                        np.random.shuffle( self.children )
+                        self.terminal = False
+                        self.R = 0.0
+                        return
+                    else:
+                        self.terminal = True
+                        self.R = -1.0
+                        return
+
+        self.terminal = True
+        self.R = 1.0
+        return
+
+    def fetch_children(self,x,y):
+        self.children = []
+        for shape in range(1,20):
+            available = True
+            child_state = deepcopy(self.state)
+            for p in [0, 1, 2, 3]:
+                (x_, y_) = Goldenpositions[shape][p] - Goldenpositions[shape][0] + np.array([x, y])
+                if self.withinrange(x_,y_,self.row,self.col) and child_state[y_][x_] == 1:
+                    child_state[y_][x_] = 0
+                    continue
+                else:
+                    available = False
+                    break
+
+            if available:
+                stateid = child_state.tostring()
+                if stateid in self.table:
+                    #append child
+                    self.children.append( self.table[stateid] )
+                else:
+                    # create child
+                    c_node = node(child_state,self.table)
+                    # add in table
+                    self.table[stateid] = c_node
+                    #append child
+                    self.children.append(c_node)
+
+        return
+
+    def withinrange(self,x, y, row, col):
+        if x >= 0 and x < col and y >= 0 and y < row:
+            return True
+        else:
+            return False
+
+
+
+
+
+class simulation(object):
+    def __init__(self,rootnode,L):
+        self.rootnode = rootnode
+        self.currentnode = rootnode
+        self.path = [self.rootnode]
+        self.L = L
+        self.t = 0
+
+
+    def run(self):
+
+        while True:
+            if not self.currentnode.expanded:
+                self.currentnode.check_explore()
+            if self.currentnode.terminal:
+                self.backup(self.currentnode.R)
+                break
+
+            if self.t > 0 and (self.t%L==0):
+                self.backup(networkvalue)
+
+            self.currentnode = self.selectfrom(self.currentnode)
+            self.path.append(self.currentnode)
+            self.t += 1
+
+        return
+
+    def backup(self,v):
+        for node in self.path:
+            node.W += v
+            node.N += 1
+            node.Q = node.W/node.N
+        return
+
+
+    def selectfrom(self,node):
+        values = []
+        for child in node.children:
+            v = child.Q + ( ( np.sqrt(2*node.N) ) / (1+child.N) )
+            values.append((v,child))
+
+        _,mchild = max(values, key=lambda s:s[0])
+        return mchild
+
+
+
+
+
