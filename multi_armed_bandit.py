@@ -11,13 +11,12 @@ def multiarmed_bandit(T,p1,p2,p3):
     B = {'W':0.0, 'Q': 0.0, 'n': 0, 'p':p2, 'id':'B'}
     C = {'W':0.0, 'Q': 0.0, 'n': 0, 'p':p3, 'id':'C'}
     arms=[A,B,C]
-    np.random.shuffle(arms)
     hist=[]
 
     for t in range(1, T+1):
         values = []
         for arm in arms:
-            v = arm['Q'] + ( sqrt(10*t) / (1+arm['n']) )
+            v = arm['Q'] + ( sqrt(2*t) / (1+arm['n']) )
             values.append((v,arm))
 
         #if len(values)==len(arms):

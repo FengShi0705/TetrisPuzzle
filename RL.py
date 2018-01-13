@@ -92,7 +92,13 @@ def build_neuralnetwork(height,width):
         return sess
 
 
-
+class Edge(object):
+    def __init__(self,start,end):
+        self.start = start
+        self.end = end
+        self.N = 0
+        self.Q = 0.0
+        self.W = 0.0
 
 class node(object):
 
@@ -102,16 +108,12 @@ class node(object):
         self.expanded = False
         self.row = self.state.shape[0]
         self.col = self.state.shape[1]
-        self.N = 0
-        self.Q = 0.0
-        self.W = 0.0
 
 
     def check_explore(self):
         """
         self.terminal indicates whether this state is terminal
         self.R is the immediate reward arriving this state
-        :return: (terminal, reword)
          terminal: true if end, otherwise false
          R: if terminal: -1 or 1,
                   else not terminal, 0
@@ -122,7 +124,7 @@ class node(object):
                 if self.state[y][x]==1:
                     self.fetch_children(x,y)
                     if len(self.children)>0:
-                        np.random.shuffle( self.children )
+                        #np.random.shuffle( self.children )
                         self.terminal = False
                         self.R = 0.0
                         return
@@ -137,6 +139,7 @@ class node(object):
 
     def fetch_children(self,x,y):
         self.children = []
+        self.edges = []
         for shape in range(1,20):
             available = True
             child_state = deepcopy(self.state)
@@ -154,6 +157,8 @@ class node(object):
                 if stateid in self.table:
                     #append child
                     self.children.append( self.table[stateid] )
+                    ed = Edge(self, self.table[stateid])
+                    self.edges.append(ed)
                 else:
                     # create child
                     c_node = node(child_state,self.table)
@@ -161,6 +166,8 @@ class node(object):
                     self.table[stateid] = c_node
                     #append child
                     self.children.append(c_node)
+                    ed = Edge(self,c_node)
+                    self.edges.append(ed)
 
         return
 
@@ -175,10 +182,16 @@ class node(object):
 
 
 class simulation(object):
-    def __init__(self,rootnode,L):
-        self.rootnode = rootnode
+    """
+    We generate training samples by using real move state rather than simulation move state,
+    because one simulation state may have multiple results to be either 1 or -1.
+     This would not be efficient in supervised learning
+    """
+
+    def __init__(self,rootnode,L,sess):
         self.currentnode = rootnode
-        self.path = [self.rootnode]
+        self.sess = sess
+        self.path = []
         self.L = L
         self.t = 0
 
@@ -192,31 +205,41 @@ class simulation(object):
                 self.backup(self.currentnode.R)
                 break
 
-            if self.t > 0 and (self.t%L==0):
-                self.backup(networkvalue)
+            if self.t > 0 and (self.t%self.L==0):
+                predict_value = self.sess.run('predictions:0',
+                                              feed_dict={'input_puzzles:0':np.reshape(self.currentnode.state,[1,-1]),
+                                                         'is_training:0': False}
+                                              )
+                self.backup(predict_value[0])
+                for edge in self.currentnode.edges:
+                    edge.N = 0
+                    edge.Q = 0.0
+                    edge.W = 0.0
 
-            self.currentnode = self.selectfrom(self.currentnode)
-            self.path.append(self.currentnode)
+            edge = self.selectfrom(self.currentnode)
+            self.path.append(edge)
+            self.currentnode = edge.end
             self.t += 1
 
         return
 
     def backup(self,v):
-        for node in self.path:
-            node.W += v
-            node.N += 1
-            node.Q = node.W/node.N
+        for edge in self.path:
+            edge.W += v
+            edge.N += 1
+            edge.Q = edge.W/edge.N
         return
 
 
     def selectfrom(self,node):
-        values = []
-        for child in node.children:
-            v = child.Q + ( ( np.sqrt(2*node.N) ) / (1+child.N) )
-            values.append((v,child))
+        sum_N = np.sum([ edge.N for edge in node.edges ])
+        value_max = (-100.0, None)
+        for edge in node.edges:
+            v = edge.Q + ( ( np.sqrt(2*sum_N) ) / (1+edge.N) )
+            if v > value_max[0]:
+                value_max = (v, edge)
 
-        _,mchild = max(values, key=lambda s:s[0])
-        return mchild
+        return value_max[1]
 
 
 
