@@ -106,7 +106,13 @@ def build_neuralnetwork(height,width):
         return sess
 
 
-
+class Edge(object):
+    def __init__(self,start,end):
+        self.start = start
+        self.end = end
+        self.N = 0
+        self.Q = 0.0
+        self.W = 0.0
 
 class Node(object):
 
@@ -119,24 +125,21 @@ class Node(object):
         self.row = self.state.shape[0]
         self.col = self.state.shape[1]
 
-        self.N = 0
-        self.Q = 0.0
-        self.W = 0.0
-
-
 
     def check_explore(self):
         """
         self.terminal indicates whether this state is terminal
-        self.V is -1 for unsuccessful terminal and 1 for successful terminal
-        self.Qv consider the depth of the terminal
+        self.R is the immediate reward arriving this state
+         terminal: true if end, otherwise false
+         R: if terminal: -1 or 1,
+                  else not terminal, 0
         """
         self.expanded = True
         for y in range(0,self.row):
             for x in range(0,self.col):
                 if self.state[y][x]==1:
-                    self.fetch_children(x,y)
-                    if len(self.children)>0:
+                    self.fetch_edges(x,y)
+                    if len(self.edges)>0:
                         self.terminal = False
                         self.Qv = 0.0
                         return
@@ -147,12 +150,12 @@ class Node(object):
                         return
 
         self.terminal = True
-        self.Qv = 1.0
+        self.Qv = 0.0 + 1.0
         self.V = 1.0
         return
 
-    def fetch_children(self,x,y):
-        self.children = []
+    def fetch_edges(self,x,y):
+        self.edges = []
         for shape in range(1,20):
             available = True
             child_state = deepcopy(self.state)
@@ -169,14 +172,18 @@ class Node(object):
                 stateid = child_state.tostring()
                 if stateid in self.table:
                     #append child
-                    self.children.append( self.table[stateid] )
+                    #self.children.append( self.table[stateid] )
+                    ed = Edge(self, self.table[stateid])
+                    self.edges.append(ed)
                 else:
                     # create child
                     c_node = Node(child_state,self.table, self.cumR+self.uniR, self.uniR)
                     # add in table
                     self.table[stateid] = c_node
                     #append child
-                    self.children.append(c_node)
+                    #self.children.append(c_node)
+                    ed = Edge(self,c_node)
+                    self.edges.append(ed)
 
         return
 
@@ -200,7 +207,7 @@ class Simulation(object):
     def __init__(self,rootnode,L,sess):
         self.currentnode = rootnode
         self.sess = sess
-        self.path = [rootnode]
+        self.path = []
         self.L = L
         self.t = 0
 
@@ -221,32 +228,33 @@ class Simulation(object):
                 #                              )
                 #self.backup(predict_value[0])
                 self.backup(self.currentnode.Qv)
-                #for child in self.currentnode.children:
-                #    child.N = 0
-                #    child.Q = 0.0
-                #    child.W = 0.0
+                for edge in self.currentnode.edges:
+                    edge.N = 0
+                    edge.Q = 0.0
+                    edge.W = 0.0
 
-            self.currentnode = self.selectfrom(self.currentnode)
-            self.path.append(self.currentnode)
+            edge = self.selectfrom(self.currentnode)
+            self.path.append(edge)
+            self.currentnode = edge.end
             self.t += 1
 
         return
 
     def backup(self,v):
-        for node in self.path:
-            node.W += v
-            node.N += 1
-            node.Q = node.W/node.N
+        for edge in self.path:
+            edge.W += v
+            edge.N += 1
+            edge.Q = edge.W/edge.N
         return
 
 
     def selectfrom(self,node):
-        sum_N = np.sum([ child.N for child in node.children ])
+        sum_N = np.sum([ edge.N for edge in node.edges ])
         value_max = (-100.0, None)
-        for child in node.children:
-            v = child.Q + ( ( np.sqrt(2*sum_N) ) / (1 + child.N) )
+        for edge in node.edges:
+            v = edge.Q + ( ( np.sqrt(2*sum_N) ) / (1+edge.N) )
             if v > value_max[0]:
-                value_max = (v, child)
+                value_max = (v, edge)
 
         return value_max[1]
 
@@ -289,8 +297,8 @@ class Game(object):
             simulation.run()
 
 
-        (maxQ,maxchild) = max([(child.Q, child) for child in startnode.children],key=lambda s:s[0])
-        self.current_realnode = maxchild
+        (maxQ,maxedge) = max([(edge.Q, edge) for edge in startnode.edges],key=lambda s:s[0])
+        self.current_realnode = maxedge.end
         self.real_nodepath.append(self.current_realnode)
 
         return
