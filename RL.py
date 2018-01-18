@@ -10,13 +10,33 @@
 ##############################################
 import numpy as np
 import tensorflow as tf
-from data_preprocessing import Goldenpositions
+from data_preprocessing import Goldenpositions,data_batch_iter
 from copy import deepcopy
 import utils
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from PIL import Image, ImageDraw
 from mysolution import Create_sample
+import time
+import multiprocessing
+
+GLOBAL_PARAMETERS={
+    'N game per cpu per density':50,
+    'blank_range':np.arange(0.1,0.6,0.1),
+    'backup per L': 5,
+    'simulation per move': 100,
+    'width':20,
+    'height':20,
+    'ncup':4,
+    'summary_dir': '../TetrisPuzzle_RL_data/summary/',
+    'saver_dir': '../TetrisPuzzle_RL_data/saver/',
+    'goal_score': 0.6,
+    'N game per eval per density':10,
+    'batchsize':50,
+    'epoch per training': 1,
+    'dataQ maxsize':10,
+}
+
 
 def build_neuralnetwork(height,width):
     myGraph = tf.Graph()
@@ -93,7 +113,7 @@ def build_neuralnetwork(height,width):
         lossL2 = tf.add_n([tf.nn.l2_loss(variable) for variable in tf.trainable_variables()
                            if 'bias' not in variable.name]) * 0.0001
 
-        mse = tf.reduce_mean( tf.squared_difference(y,y_) )
+        mse = tf.reduce_mean( tf.squared_difference(y,y_), name='MSError' )
         loss = tf.add(mse, lossL2, name='total_loss')
 
         #summary
@@ -132,8 +152,8 @@ class Node(object):
     def check_explore(self):
         """
         self.terminal indicates whether this state is terminal
-        self.V is -1 for unsuccessful terminal and 1 for successful terminal
-        self.Qv consider the depth of the terminal
+        self.V is real value: -1 for unsuccessful terminal and 1 for successful terminal
+        self.Qv facilitate the MCTS by considering the depth of the terminal
         """
         self.expanded = True
         for y in range(0,self.row):
@@ -219,12 +239,12 @@ class Simulation(object):
                 break
 
             if self.t > 0 and (self.t%self.L==0):
-                #predict_value = self.sess.run('predictions:0',
-                #                              feed_dict={'input_puzzles:0':np.reshape(self.currentnode.state,[1,-1]).astype(np.float32),
-                #                                         'is_training:0': False}
-                #                              )
-                #self.backup(predict_value[0])
-                self.backup(self.currentnode.Qv)
+                predict_value = self.sess.run('predictions:0',
+                                              feed_dict={'input_puzzles:0':np.reshape(self.currentnode.state,[1,-1]).astype(np.float32),
+                                                         'is_training:0': False}
+                                              )
+                self.backup(predict_value[0])
+                #self.backup(self.currentnode.Qv)
                 #for child in self.currentnode.children:
                 #    child.N = 0
                 #    child.Q = 0.0
@@ -282,7 +302,7 @@ class Game(object):
                     else:
                         gamedata.append( (np.reshape(node.state, [-1]), self.current_realnode.V) )
 
-                return gamedata, self.current_realnode.V
+                return gamedata, self.current_realnode.V, self.current_realnode.Qv
             else:
                 self.play_one_move(self.current_realnode)
 
@@ -300,7 +320,15 @@ class Game(object):
         return
 
 
-def play_games(N, size, prob_blank_range, eval_sess, L_backup, n_search):
+def play_games( model,
+                new_process = True,
+                N=GLOBAL_PARAMETERS['N game per cpu per density'],
+                prob_blank_range = GLOBAL_PARAMETERS['blank_range'],
+                height = GLOBAL_PARAMETERS['height'],
+                width = GLOBAL_PARAMETERS['width'],
+                L_backup = GLOBAL_PARAMETERS['backup per L'],
+                n_search = GLOBAL_PARAMETERS['simulation per move'],
+                ):
     """
     if success, collect real move data(1.0)
     if unsuccess, collect anwser(1.0) and real moves(-1.0) which are different for anwser
@@ -313,25 +341,47 @@ def play_games(N, size, prob_blank_range, eval_sess, L_backup, n_search):
     :return:
     """
 
-    Data = []
-    for i in range(0,N):
-        for prob_blank in prob_blank_range:
-            sample = Create_sample(size,size,prob_blank)
-            sample.add_pieces()
-            target,solution = sample.T,sample.S
+    def begin_play(eval_sess):
+        Data = []
+        n_game = 0
+        total_score = 0.0
+        for i in range(0, N):
+            for prob_blank in prob_blank_range:
+                sample = Create_sample(height, width, prob_blank)
+                sample.add_pieces()
+                target, solution = sample.T, sample.S
 
-            game = Game(target,n_search, L_backup, eval_sess)
-            gamedata, result = game.play()
-            if result<0:
-                rightdata = solve_game(target,solution)
-                Data.extend(rightdata)
-                for j in range(len(gamedata)):
-                    if not np.array_equal(rightdata[j][0],gamedata[j][0]):
-                        Data.append( gamedata[j] )
-            else:
-                Data.extend(gamedata)
+                game = Game(target, n_search, L_backup, eval_sess)
+                gamedata, result, score = game.play()
+                n_game += 1
+                total_score += score
 
-    return Data
+                if result < 0:
+                    rightdata = solve_game(target, solution)
+                    Data.extend(rightdata)
+                    for j in range(len(gamedata)):
+                        if not np.array_equal(rightdata[j][0], gamedata[j][0]):
+                            Data.append(gamedata[j])
+                else:
+                    Data.extend(gamedata)
+
+        avg_score = total_score / n_game
+        return {'Data': Data, 'score': avg_score}
+
+    if new_process:
+        eval_sess = build_neuralnetwork(height, width)
+        with eval_sess:
+            saver = tf.train.Saver()
+            saver.restore(eval_sess, GLOBAL_PARAMETERS['saver_dir'] + model)
+            # print(time.strftime("%Y-%m-%d %H:%M:%S"),
+            #      ': Restore and use {} for data generation'.format(model))
+            result = begin_play(eval_sess)
+
+    else:
+        eval_sess = model
+        result = begin_play(eval_sess)
+
+    return result
 
 
 def solve_game(T, S):
@@ -362,6 +412,131 @@ def solve_game(T, S):
                     target[y_][x_] = 0
                 data.append(( np.reshape(target, [-1]) , 1.0))
     return data
+
+def play_process(dataQ,nnQ):
+    ncpu = GLOBAL_PARAMETERS['ncup']
+    pool = multiprocessing.Pool( ncpu )
+    model = nnQ.get()
+    print(time.strftime("%Y-%m-%d %H:%M:%S"),
+          ': Got {} from model queue which have {} models now'.format(model, nnQ.qsize()))
+
+    while True:
+
+        while not nnQ.empty():
+            model = nnQ.get()
+            print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                  ': Got {} from model queue which have {} models now'.format(model,nnQ.qsize()))
+
+        if model == 'DONE':
+            break
+        results = pool.starmap(play_games,[(model,) for i in range( ncpu ) ])
+
+        totaldata=[]
+        for result in results:
+            totaldata.extend(result['Data'])
+
+        print(time.strftime("%Y-%m-%d %H:%M:%S"),
+              ': Generate a dataset of size {} by {} with {} processes'.format(len(totaldata), model, ncpu))
+        dataQ.put(totaldata)
+        print(time.strftime("%Y-%m-%d %H:%M:%S"),': Put a dataset {} into data queue which have {} datasets now'.format(model,dataQ.qsize()))
+
+
+def train_nn(dataQ,nnQ,start_model_version,running_number):
+    model = 'model_{}.ckpt'.format(start_model_version)
+
+    sess = build_neuralnetwork(GLOBAL_PARAMETERS['height'], GLOBAL_PARAMETERS['width'])
+    with sess:
+        saver = tf.train.Saver()
+        writer = tf.summary.FileWriter( GLOBAL_PARAMETERS['summary_dir']+'run{}'.format(running_number) )
+        file_loss = open(GLOBAL_PARAMETERS['summary_dir'] + 'loss.txt',
+                         'a')  # global step, moder version, model step, loss
+        file_score = open(GLOBAL_PARAMETERS['summary_dir'] + 'score.txt',
+                      'a')  # global step, moder version, model step, score
+        try:
+            saver.restore(sess, GLOBAL_PARAMETERS['saver_dir'] + model)
+        except:
+            sess.run(tf.global_variables_initializer())
+            save_path = saver.save(sess, GLOBAL_PARAMETERS['saver_dir'] + model)
+            print('Saved model_{}, in file: {}'.format(start_model_version, save_path))
+        else:
+            print('Restored {}'.format(model))
+
+        nnQ.put(model)
+        print(time.strftime("%Y-%m-%d %H:%M:%S"),
+              ': Put {} into model queue which have {} models now'.format(model, nnQ.qsize()))
+        model_ver = start_model_version
+        model_step =0
+        gl_step = 0
+        best_score = play_games(sess,new_process=False,N=GLOBAL_PARAMETERS['N game per eval per density'])['score']
+        record_data_into_file(file_score, (gl_step, model_ver, model_step, best_score))
+
+        datasets = [dataQ.get()]
+        print(time.strftime("%Y-%m-%d %H:%M:%S"),
+              ': Got a dataset from data queue for training which have {} datasets now'.format(dataQ.qsize()))
+        print(time.strftime("%Y-%m-%d %H:%M:%S"),
+              ': Current training datasets have {} dataset'.format(len(datasets)))
+
+        while True:
+            while not dataQ.empty():
+                datasets.append(dataQ.get())
+                print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                      ': Got a dataset for training from data queue which have {} datasets now'.format(dataQ.qsize()))
+                print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                      ': Current training data have {} datasets'.format(len(datasets)))
+                if len(datasets) > GLOBAL_PARAMETERS['dataQ maxsize']:
+                    datasets.pop(0)
+
+            training_data=[]
+            for dataset in datasets:
+                training_data.extend(dataset)
+            batches = data_batch_iter(training_data, GLOBAL_PARAMETERS['batchsize'], GLOBAL_PARAMETERS['epoch per training'])
+            for puzzles, labels in batches:
+                if model_step%100 ==0:
+                    summary,mserror = sess.run(['Merge/MergeSummary:0','MSError:0'], feed_dict={
+                        'input_puzzles:0': puzzles.astype(np.float32),
+                        'labels:0': labels,
+                        'is_training:0': False
+                    })
+                    writer.add_summary(summary,gl_step)
+                    print('globle step %d, mode %d, mode step %d, loss %g' % (gl_step, model_ver, model_step, mserror ))
+                    record_data_into_file(file_loss, (gl_step, model_ver, model_step, mserror))
+
+                sess.run('train_mini', feed_dict={
+                    'input_puzzles:0': puzzles.astype(np.float32),
+                    'labels:0': labels,
+                    'is_training:0': True
+                } )
+                model_step += 1
+                gl_step += 1
+
+            #eval
+            score = play_games(sess,new_process=False,N=GLOBAL_PARAMETERS['N game per eval per density'])['score']
+            print('Raw mode{} score: {}, after training score: {} '.format(model_ver, best_score, score))
+            record_data_into_file(file_score, (gl_step, model_ver, model_step, score))
+            if score>best_score:
+                best_score = score
+                model_ver += 1
+                model = 'model_{}.ckpt'.format(model_ver)
+                save_path = saver.save(sess, GLOBAL_PARAMETERS['saver_dir']+model)
+                print('Saved better mode_{} in file: {}'.format(model_ver,save_path))
+                model_step=0
+
+                if best_score > GLOBAL_PARAMETERS['goal_score']:
+                    print('score achieved: {}'.format(best_score))
+                    print('finished')
+                    nnQ.put('DONE')
+                    break
+                else:
+                    nnQ.put(model)
+                    print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                          ': Put {} into model queue which have {} models now'.format(model, nnQ.qsize()))
+
+        return
+
+def record_data_into_file(file,data):
+    file.writelines(str(data)+'\n')
+    file.flush()
+    return
 
 
 
@@ -408,7 +583,17 @@ def visualisation(target, solution):
     plt.show()
 
 if __name__ == "__main__":
-    sess = build_neuralnetwork(10, 10)
+    dataQue = multiprocessing.Queue(GLOBAL_PARAMETERS['dataQ maxsize'])
+    nnQue = multiprocessing.Queue()
+    process_data= multiprocessing.Process(target=play_process,args=(dataQue,nnQue,))
+    process_train = multiprocessing.Process(target=train_nn, args=(dataQue,nnQue, 0, 1))
+    process_train.start()
+    process_data.start()
+    process_train.join()
+    process_data.join()
+
+
+    """
     sess.run(tf.global_variables_initializer())
     r1 = 0
     r2 = 0
@@ -432,10 +617,10 @@ if __name__ == "__main__":
 
         for step in game1data:
             print(np.reshape(step[0],[20,20]),step[1])
-        """for step in game2data:
-            visualisation(target, np.reshape(step[0], [10, 10]))"""
+        for step in game2data:
+            visualisation(target, np.reshape(step[0], [10, 10]))
 
-    """target = np.array([[1, 1, 1, 1, 0, 0, 0, 1, 1, 1],
+        target = np.array([[1, 1, 1, 1, 0, 0, 0, 1, 1, 1],
         [1, 1, 1, 1, 0, 1, 0, 1, 1, 1],
         [1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
         [1, 1, 1, 0, 1, 1, 0, 0, 0, 0],
@@ -444,7 +629,8 @@ if __name__ == "__main__":
         [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
         [1, 1, 1, 0, 0, 0, 0, 0, 1, 1],
         [1, 0, 1, 0, 1, 0, 0, 0, 1, 1],
-        [0, 1, 1, 1, 1, 1, 1, 0, 0, 0]])"""
+        [0, 1, 1, 1, 1, 1, 1, 0, 0, 0]]
+    """
 
 
 
