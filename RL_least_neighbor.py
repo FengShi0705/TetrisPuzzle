@@ -1,5 +1,9 @@
-# Use the same RL algorithm, the only difference is that we conduct MCTS starting at the node with least neighbors rather than top left corner
-
+# Use the same RL algorithm, the only difference is that we conduct MCTS starting at the node with least available actions rather than top left corner
+import tensorflow as tf
+import numpy as np
+from heapq import heappush,heappop
+from copy import deepcopy
+from data_preprocessing import Goldenpositions
 
 
 GLOBAL_PARAMETERS={
@@ -116,11 +120,13 @@ def build_neuralnetwork(height,width):
 
 class Node(object):
 
-    def __init__(self,state,table,cumR,uniR):
+    def __init__(self,state,table,cumR,uniR,priQue, fittable):
         self.table = table
         self.state = state
         self.cumR = cumR
         self.uniR = uniR
+        self.priQue = priQue
+        self.fittable = fittable
         self.expanded = False
         self.row = self.state.shape[0]
         self.col = self.state.shape[1]
@@ -138,6 +144,28 @@ class Node(object):
         self.score facilitate the MCTS by considering the depth of the terminal
         """
         self.expanded = True
+        while len(self.priQue) > 0:
+            (nfitpieces, y, x) = heappop(self.priQue)
+            if self.state[y][x] == 0:
+                continue
+            else:
+                assert len(self.fittable[y][x]) == nfitpieces,'fittable not equal to priQue'
+                if nfitpieces > 0:
+                    self.fetch_children(x, y)
+                    self.terminal = False
+                    return
+                else:
+                    self.terminal = True
+                    self.score = -1.0 + self.cumR
+                    self.V = -1.0
+                    return
+
+        self.terminal = True
+        self.score = 1.0
+        self.V = 1.0
+        return
+
+
         for y in range(0,self.row):
             for x in range(0,self.col):
                 if self.state[y][x]==1:
@@ -157,7 +185,61 @@ class Node(object):
         return
 
     def fetch_children(self,x,y):
+        def update_fitness(x,y,state,fittable,PriQ):
+            fitlist=deepcopy(fittable[y][x])
+            for (shape, pos) in fittable[y][x]:
+                for p in [0, 1, 2, 3]:
+                    (x_, y_) = Goldenpositions[shape][p] - Goldenpositions[shape][pos] + np.array([x, y])
+                    assert withinrange(x_, y_, self.row, self.col), 'not within range during update_fitness'
+                    if state[y_][x_] == 0:
+                        fitlist.remove((shape, pos))
+                        break
+
+            if len( fittable[y][x] ) != len(fitlist):
+                fittable[y][x] = fitlist
+                heappush(PriQ,(len(fitlist),y,x ))
+
+            return
+
         self.children = []
+        for (shape, pos) in self.fittable[y][x]:
+            # for each child
+            child_state = deepcopy(self.state)
+            child_fittable = deepcopy(self.fittable)
+            xs=[]
+            ys=[]
+            #tile update child_state, child_fittable
+            for p in [0, 1, 2, 3]:
+                (x_, y_) = Goldenpositions[shape][p] - Goldenpositions[shape][pos] + np.array([x, y])
+                assert withinrange(x_,y_,self.row,self.col),'not within range'
+                assert child_state[y_][x_] == 1, 'positions to tile should be 1, but 0 founded'
+                child_state[y_][x_] = 0
+                child_fittable[y_][x_] = None #already tiled point to be None
+                xs.append(x_)
+                ys.append(y_)
+
+            stateid = child_state.tostring()
+            if stateid in self.table:
+                # append child
+                self.children.append(self.table[stateid])
+            else:
+                child_PriQ = deepcopy(self.priQue)
+                # update child_PriQ, child_fittable
+                for y_ in range(max(min(ys) - 3, 0), min(max(ys) + 4, self.row)):
+                    for x_ in range(max(min(xs) - 3, 0), min(max(xs) + 4, self.col)):
+                        if child_state[y_][x_] == 1:
+                            update_fitness(x_, y_, child_state, child_fittable, child_PriQ)
+                # create child
+                c_node = Node(child_state, self.table, self.cumR + self.uniR, self.uniR, child_PriQ, child_fittable)
+                self.table[stateid] = c_node
+                self.children.append(c_node)
+
+        return
+
+
+
+
+
         for shape in range(1,20):
             available = True
             child_state = deepcopy(self.state)
@@ -216,15 +298,15 @@ class Simulation(object):
             if not self.currentnode.expanded:
                 self.currentnode.check_explore()
             if self.currentnode.terminal:
-                self.backup(self.currentnode.V)
+                self.backup(self.currentnode.score)
                 break
 
-            if self.t > 0 and (self.t%self.L==0):
-                predict_value = self.sess.run('predictions:0',
-                                              feed_dict={'input_puzzles:0':np.reshape(self.currentnode.state,[1,-1]).astype(np.float32),
-                                                         'is_training:0': False}
-                                              )
-                self.backup(predict_value[0])
+            #if self.t > 0 and (self.t%self.L==0):
+            #    predict_value = self.sess.run('predictions:0',
+            #                                  feed_dict={'input_puzzles:0':np.reshape(self.currentnode.state,[1,-1]).astype(np.float32),
+            #                                             'is_training:0': False}
+            #                                  )
+            #    self.backup(predict_value[0])
                 #self.backup(0.0)
                 #for child in self.currentnode.children:
                 #    child.N = 0
@@ -264,8 +346,29 @@ class Game(object):
         self.n_search = n_search
         self.L = L
         self.sess = sess
+        self.row, self.col = self.target.shape
 
-        self.current_realnode = Node(deepcopy(self.target),self.table, 0.0, 4/np.sum(self.target))
+        fittable = np.empty(self.target.shape, object)
+        PriQ=[]
+        for y in range(0, self.row):
+            for x in range(0, self.col):
+                if self.target[y][x] == 1:
+                    fitlist = []
+                    for shape in range(1,20):
+                        for pos in [0,1,2,3]:
+                            sign = True
+                            for p in [0,1,2,3]:
+                                (x_, y_) = Goldenpositions[shape][p] - Goldenpositions[shape][pos] + np.array([x, y])
+                                if ( not  withinrange(x_, y_, self.row, self.col ) ) or self.target[y_][x_] == 0:
+                                    sign = False
+                                    break
+                            if sign:
+                                fitlist.append( (shape, pos) )
+                    fittable[y][x]=fitlist
+                    heappush( PriQ ,  ( len(fitlist), y, x )   )
+
+
+        self.current_realnode = Node(deepcopy(self.target),self.table, 0.0, 4/np.sum(self.target),PriQ, fittable)
         self.table[self.current_realnode.state.tostring()] = self.current_realnode
         self.real_nodepath = [self.current_realnode]
 
@@ -295,6 +398,9 @@ class Game(object):
 
 
         (maxQ,maxchild) = max([(child.Q, child) for child in startnode.children],key=lambda s:s[0])
+        print('Real move {}, All children: {}'.format(  len(self.real_nodepath),  [(child.Q, child.N) for child in startnode.children] ) )
+        print('Real move {}, Select child Q:{}'.format(len(self.real_nodepath),maxQ))
+        print( maxchild.state)
         self.current_realnode = maxchild
         self.real_nodepath.append(self.current_realnode)
 
@@ -530,4 +636,7 @@ def record_data_into_file(file,data):
     file.writelines(str(data)+'\n')
     file.flush()
     return
+
+
+
 

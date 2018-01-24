@@ -128,6 +128,46 @@ def update_ax(fig, nodes, ax, pid):
     return
 
 
+def validation(target, gamedata):
+    """
+    visualise the real play process of the game to tile the target
+    :param target:
+    :param gamedata:
+    :return:
+    """
+    plt.ion()
+    fig = plt.figure()
+    Ty_len = len(target)
+    Tx_len = len(target[0])
+    im = Image.new('RGB', (Tx_len, Ty_len), (255, 255, 255))
+    ax1 = fig.add_subplot(111)
+    if gamedata[-1][1]==1:
+        ax1.set_title('win')
+    if gamedata[-1][1]==-1:
+        ax1.set_title('lose')
+    ax1.set_xlim([-1, Tx_len + 1])
+    ax1.set_ylim([-1, Ty_len + 1])
+    ax1.invert_yaxis()
+    ax1.imshow(im)
+    for y in range(Ty_len):
+        row = target[y]
+        for x in range(Tx_len):
+            if row[x] == 1:
+                ax1.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color='b'))
+
+    for i in range(0, len(gamedata)-1):
+        nodes = []
+        for y in range(Ty_len):
+            for x in range(Tx_len):
+                if np.reshape(gamedata[i][0],np.array(target).shape)[y][x] != np.reshape(gamedata[i+1][0],np.array(target).shape)[y][x]:
+                    nodes.append((x,y))
+
+        update_ax(fig,nodes,ax1,np.random.randint(Ty_len*Tx_len))
+
+    plt.ioff()
+    plt.show()
+    return
+
 def Mark_Wrong_square(target,solution,ax):
     T = np.array(target)
     row,col = T.shape

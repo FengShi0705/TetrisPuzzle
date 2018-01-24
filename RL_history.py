@@ -21,8 +21,8 @@ import RL_realplay
 import RL_least_neighbor
 
 GLOBAL_PARAMETERS={
-    'N game per cpu per density':50,
-    'blank_range':np.arange(0.1,0.6,0.1),
+    'N game per cpu per density':200,
+    'blank_range':[0.4],
     'backup per L': 5,
     'simulation per move': 100,
     'width':20,
@@ -32,18 +32,21 @@ GLOBAL_PARAMETERS={
     'saver_dir': '../TetrisPuzzle_RL_data/saver/',
     'goal_score': 0.6,
     'N game per eval per density':10,
-    'batchsize':50,
+    'batchsize':32,
     'epoch per training': 1,
-    'dataQ maxsize':10,
+    'dataQ maxsize':20,
+    'history_nframes':2,
+    'test_sample_size':1000
 }
 
 
-def build_neuralnetwork(height,width):
+def build_neuralnetwork(height,width,nframes):
     myGraph = tf.Graph()
     with myGraph.as_default():
-        x = tf.placeholder(tf.float32,shape= [None,width*height], name='input_puzzles')
+        x = tf.placeholder(tf.float32,shape= [None,nframes*height*width], name='input_puzzles')
         y_ = tf.placeholder(tf.float32, shape = [None], name='labels')
         is_training = tf.placeholder(tf.bool, name='is_training')
+        learning_rate = tf.placeholder(tf.float32, shape=(), name='learning_rate')
 
         def conv_block(ipt, filter_kernalsize, channels_in, channels_out, is_training, name):
             with tf.name_scope(name):
@@ -92,10 +95,10 @@ def build_neuralnetwork(height,width):
 
 
 
-        x_puzzle = tf.reshape(x,[-1, height, width, 1])
-        hidden = conv_block(x_puzzle, [3,3], 1, 256, is_training,"conv_block")
+        x_puzzle = tf.transpose( tf.reshape(x,[-1, nframes, height, width]), (0,2,3,1) )
+        hidden = conv_block(x_puzzle, [3,3], nframes, 256, is_training,"conv_block")
 
-        for i in range(1,4):
+        for i in range(1,5):
             hidden = residual_block(hidden, 256, is_training, 'residual_block'+str(i) )
 
         #output conv
@@ -123,7 +126,7 @@ def build_neuralnetwork(height,width):
         #train
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):
-            train_step = tf.train.AdamOptimizer(1e-4).minimize(loss, name='train_mini')
+            train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss, name='train_mini')
 
     sess = tf.Session(graph=myGraph)
     assert sess.graph is myGraph
@@ -220,7 +223,8 @@ class Simulation(object):
      This would not be efficient in supervised learning
     """
 
-    def __init__(self,rootnode,L,sess):
+    def __init__(self,rootnode,L,sess , nframe):
+        self.nframe = nframe
         self.currentnode = rootnode
         self.sess = sess
         self.path = [rootnode]
@@ -238,8 +242,15 @@ class Simulation(object):
                 break
 
             if self.t > 0 and (self.t%self.L==0):
+                if self.nframe > len(self.path):
+                    history = [ np.zeros([ self.currentnode.row, self.currentnode.col]) for i in range(self.nframe - len(self.path)) ]
+                    for node in self.path:
+                        history.append( node.state )
+                else:
+                    history = [ node.state for node in self.path[-self.nframe:] ]
+
                 predict_value = self.sess.run('predictions:0',
-                                              feed_dict={'input_puzzles:0':np.reshape(self.currentnode.state,[1,-1]).astype(np.float32),
+                                              feed_dict={'input_puzzles:0':np.reshape(history, [1,self.nframe*self.currentnode.row*self.currentnode.col]).astype(np.float32),
                                                          'is_training:0': False}
                                               )
                 self.backup(predict_value[0])
@@ -276,7 +287,8 @@ class Simulation(object):
 
 class Game(object):
 
-    def __init__(self, target, n_search, L, sess):
+    def __init__(self, target, n_search, L, nframes, sess):
+        self.nframes = nframes
         self.target = np.array(target)
         self.table = {}
         self.n_search = n_search
@@ -308,7 +320,7 @@ class Game(object):
 
     def play_one_move(self,startnode):
         for i in range(0,self.n_search):
-            simulation = Simulation(startnode,self.L,self.sess)
+            simulation = Simulation(startnode,self.L,self.sess, self.nframes)
             simulation.run()
 
 
@@ -319,68 +331,51 @@ class Game(object):
         return
 
 
-def play_games( model,
-                new_process = True,
-                N=GLOBAL_PARAMETERS['N game per cpu per density'],
-                prob_blank_range = GLOBAL_PARAMETERS['blank_range'],
-                height = GLOBAL_PARAMETERS['height'],
-                width = GLOBAL_PARAMETERS['width'],
-                L_backup = GLOBAL_PARAMETERS['backup per L'],
-                n_search = GLOBAL_PARAMETERS['simulation per move'],
-                ):
-    """
-    if success, collect real move data(1.0)
-    if unsuccess, collect anwser(1.0) and real moves(-1.0) which are different for anwser
-    :param N:
-    :param size:
-    :param prob_blank_range:
-    :param eval_sess:
-    :param L_backup:
-    :param n_search:
-    :return:
-    """
 
-    def begin_play(eval_sess):
-        Data = []
-        n_game = 0
-        total_score = 0.0
-        for i in range(0, N):
-            for prob_blank in prob_blank_range:
-                sample = Create_sample(height, width, prob_blank)
-                sample.add_pieces()
-                target, solution = sample.T, sample.S
 
-                game = Game(target, n_search, L_backup, eval_sess)
-                gamedata, result, score = game.play()
-                n_game += 1
-                total_score += score
 
-                if result < 0:
-                    rightdata = solve_game(target, solution)
-                    Data.extend(rightdata)
-                    for j in range(len(gamedata)):
-                        if not np.array_equal(rightdata[j][0], gamedata[j][0]):
-                            Data.append(gamedata[j])
-                else:
-                    Data.extend(gamedata)
+def play_games(eval_sess,
+               N=GLOBAL_PARAMETERS['N game per cpu per density'],
+               prob_blank_range = GLOBAL_PARAMETERS['blank_range'],
+               height = GLOBAL_PARAMETERS['height'],
+               width = GLOBAL_PARAMETERS['width'],
+               n_search = GLOBAL_PARAMETERS['simulation per move'],
+               L_backup = GLOBAL_PARAMETERS['backup per L'],
+               nframes = GLOBAL_PARAMETERS['history_nframes']):
+    Data = []
+    n_game = 0
+    total_score = 0.0
+    for i in range(0, N):
+        for prob_blank in prob_blank_range:
+            sample = Create_sample(height, width, prob_blank)
+            sample.add_pieces()
+            target, solution = sample.T, sample.S
 
-        avg_score = total_score / n_game
-        return {'Data': Data, 'score': avg_score}
+            game = Game(target, n_search, L_backup, nframes, eval_sess)
+            gamedata, result, score = game.play()
+            n_game += 1
+            total_score += score
 
-    if new_process:
-        eval_sess = build_neuralnetwork(height, width)
-        with eval_sess:
-            saver = tf.train.Saver()
-            saver.restore(eval_sess, GLOBAL_PARAMETERS['saver_dir'] + model)
-            # print(time.strftime("%Y-%m-%d %H:%M:%S"),
-            #      ': Restore and use {} for data generation'.format(model))
-            result = begin_play(eval_sess)
+            if result < 0:
+                blank_frame = np.zeros(height * width)
+                rightdata = solve_game(target, solution)
+                for j in range(len(gamedata)):
+                    if nframes > j + 1:
+                        history_right = [blank_frame for bf in range(nframes - (j + 1))]
+                        history_game = [blank_frame for bf in range(nframes - (j + 1))]
+                        for ef in range(0, j + 1):
+                            history_right.append(rightdata[j][0])
+                            history_game.append(gamedata[j][0])
+                    else:
+                        history_right = [rightdata[ef][0] for ef in range(j + 1 - nframes, j + 1)]
+                        history_game = [gamedata[ef][0] for ef in range(j + 1 - nframes, j + 1)]
+                    # if not np.array_equal(rightdata[j][0], gamedata[j][0]):
 
-    else:
-        eval_sess = model
-        result = begin_play(eval_sess)
+                    Data.append( ( np.reshape(history_right, [nframes * height * width]), 1.0 ) )
+                    Data.append( ( np.reshape(history_game, [nframes * height * width]), -1.0 ) )
 
-    return result
+    avg_score = total_score / n_game
+    return {'Data': Data, 'score': avg_score}
 
 
 def solve_game(T, S):
@@ -443,7 +438,7 @@ def play_process(dataQ,nnQ):
 def train_nn(dataQ,nnQ,start_model_version,running_number):
     model = 'model_{}.ckpt'.format(start_model_version)
 
-    sess = build_neuralnetwork(GLOBAL_PARAMETERS['height'], GLOBAL_PARAMETERS['width'])
+    sess = build_neuralnetwork(GLOBAL_PARAMETERS['height'], GLOBAL_PARAMETERS['width'], GLOBAL_PARAMETERS['history_nframes'])
     with sess:
         saver = tf.train.Saver()
         writer = tf.summary.FileWriter( GLOBAL_PARAMETERS['summary_dir']+'run{}'.format(running_number) )
@@ -548,5 +543,88 @@ def record_data_into_file(file,data):
     file.writelines(str(data)+'\n')
     file.flush()
     return
+
+
+if __name__=='__main__':
+    sess = build_neuralnetwork(GLOBAL_PARAMETERS['height'], GLOBAL_PARAMETERS['width'], GLOBAL_PARAMETERS['history_nframes'])
+    total_data = []
+    best_score = float("-inf")
+    min_loss = float("inf")
+
+    with sess:
+        sess.run(tf.global_variables_initializer())
+        saver = tf.train.Saver()
+        writer = tf.summary.FileWriter(GLOBAL_PARAMETERS['summary_dir'] + 'history')
+        time_step = 0
+
+        while True:
+            # generate data
+            result = play_games(sess)
+            data = result['Data']
+            total_data.append(data)
+            total_data = total_data[-GLOBAL_PARAMETERS['dataQ maxsize']:]
+
+            # eval
+            training_data = []
+            for dataset in total_data:
+                training_data.extend(dataset)
+            data = np.array(data)
+            shuffle_indices = np.random.permutation(np.arange(len(data)))
+            shuffled_data = data[shuffle_indices]
+            score = result['score']
+            test_x, test_y = zip(*shuffled_data)
+            test_x = np.array(test_x)
+            test_y = np.array(test_y)
+            loss = sess.run('MSError:0', feed_dict={
+                'input_puzzles:0': test_x.astype(np.float32)[0:GLOBAL_PARAMETERS['test_sample_size']],
+                'labels:0': test_y[0:GLOBAL_PARAMETERS['test_sample_size']],
+                'is_training:0': False
+            })
+            print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                  ': Generate {} data with score: {} and loss: {} '.format(len(data),score,loss))
+            print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                  ': Training data size:{}. Number of datasets: {} '.format(len(training_data), len(total_data)) )
+
+            if score > best_score:
+                best_score = score
+                save_path = saver.save(sess, GLOBAL_PARAMETERS['saver_dir'] + 'history_bestscore.ckpt')
+                print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                      ': best score model saved in file: {} '.format(save_path))
+            if loss < min_loss:
+                min_loss = loss
+                save_path = saver.save(sess, GLOBAL_PARAMETERS['saver_dir'] + 'history_minloss.ckpt')
+                print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                      ': min loss model saved in file: {} '.format(save_path))
+
+            #train
+            if time_step<=30000:
+                learning_rate = 0.01
+            elif time_step<=60000:
+                learning_rate = 0.001
+            else:
+                learning_rate = 0.0001
+            batches = data_batch_iter(training_data, GLOBAL_PARAMETERS['batchsize'], GLOBAL_PARAMETERS['epoch per training'])
+            for inputdata, outputdata in batches:
+                if time_step%100 == 0:
+                    summary, mserror = sess.run(['Merge/MergeSummary:0', 'MSError:0'], feed_dict={
+                        'input_puzzles:0': inputdata.astype(np.float32),
+                        'labels:0': outputdata,
+                        'is_training:0': False
+                    })
+                    writer.add_summary(summary, time_step)
+                    print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                          ': training step {}, loss {}'.format (time_step, mserror ))
+
+                if time_step%1000 == 0:
+                    break
+
+                sess.run('train_mini', feed_dict={
+                    'input_puzzles:0': inputdata.astype(np.float32),
+                    'labels:0': outputdata,
+                    'is_training:0': True,
+                    'learning_rate:0': learning_rate
+                })
+                time_step += 1
+
 
 

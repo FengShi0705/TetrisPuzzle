@@ -1,12 +1,5 @@
 # ###########################################
-# This script applys reinforcement learning and MCTS in tiling problems.
-
-# In MCTS,
-# 1. Pure -1 and +1 rewards during simulation have two disadvantages:
-#          (1): if all the simulation in a search have reward of (-1), the next real move will benefit nothing from the search
-#          (2): multiple simulations may end up in the same terminal state, which wastes the search resources
-#    In order to tackle this two disadvantages, we take into consideration the depth of the terminal state for the reward.
-# 2. We also use backup the state-value every L step, this make use of the training network to guild the search.
+# backup terminal score, without predicted value
 ##############################################
 import numpy as np
 import tensorflow as tf
@@ -19,11 +12,6 @@ from PIL import Image, ImageDraw
 from mysolution import Create_sample
 import time
 import multiprocessing
-import RL_naive_score
-import RL_naive_V
-import RL_classification
-import RL_realplay
-import RL_least_neighbor
 
 GLOBAL_PARAMETERS={
     'N game per cpu per density':50,
@@ -239,15 +227,15 @@ class Simulation(object):
             if not self.currentnode.expanded:
                 self.currentnode.check_explore()
             if self.currentnode.terminal:
-                self.backup(self.currentnode.V)
+                self.backup(self.currentnode.score)
                 break
 
-            if self.t > 0 and (self.t%self.L==0):
-                predict_value = self.sess.run('predictions:0',
-                                              feed_dict={'input_puzzles:0':np.reshape(self.currentnode.state,[1,-1]).astype(np.float32),
-                                                         'is_training:0': False}
-                                              )
-                self.backup(predict_value[0])
+            #if self.t > 0 and (self.t%self.L==0):
+                #predict_value = self.sess.run('predictions:0',
+                #                              feed_dict={'input_puzzles:0':np.reshape(self.currentnode.state,[1,-1]).astype(np.float32),
+                #                                         'is_training:0': False}
+                #                              )
+                #self.backup(predict_value[0])
                 #self.backup(0.0)
                 #for child in self.currentnode.children:
                 #    child.N = 0
@@ -599,7 +587,6 @@ def visualisation(target, solution):
     plt.show()
 
 if __name__ == "__main__":
-    """
     dataQue = multiprocessing.Queue(GLOBAL_PARAMETERS['dataQ maxsize'])
     nnQue = multiprocessing.Queue()
     process_data= multiprocessing.Process(target=play_process,args=(dataQue,nnQue,))
@@ -607,47 +594,13 @@ if __name__ == "__main__":
     process_train.start()
     process_data.start()
     process_train.join()
-    process_data.join()"""
-
-    target = utils.generate_target(width=20, height=20, density=0.6)
-
-
-    data_naive_v, _, score_naive_v = RL_naive_V.Game(target,100,5,None).play()
-    data_naive_score, _, score_naive_score = RL_naive_score.Game(target,100,5,None).play()
-    data_neibor, _, score_neibor = RL_least_neighbor.Game(target, 100, 5, None).play()
-    utils.validation(target,data_naive_score)
-    utils.validation(target, data_neibor)
-    sess = build_neuralnetwork(20,20)
-
-    with sess:
-        saver=tf.train.Saver()
-        saver.restore(sess,'../TetrisPuzzle_RL_data/saver/model_2.ckpt')
-        data_back_value, _, score_value = Game(target, 100, 5, sess).play()
-
-        y_naive_v = sess.run('predictions:0',feed_dict={'input_puzzles:0':np.array([d[0] for d in data_naive_v]).astype(np.float32),'is_training:0': False})
-        y_naive_score = sess.run('predictions:0',feed_dict={'input_puzzles:0': np.array([d[0] for d in data_naive_score]).astype(np.float32),'is_training:0': False})
-        y_back_value = sess.run('predictions:0',feed_dict={'input_puzzles:0': np.array([d[0] for d in data_back_value]).astype(np.float32),'is_training:0': False})
-
-    sess = RL_classification.build_neuralnetwork(20, 20)
-    with sess:
-        saver = tf.train.Saver()
-        saver.restore(sess, '../TetrisPuzzle_RL_data/saver/supervised.ckpt')
-        data_back_class, _, score_class = RL_classification.Game(target, 100, 5, sess).play()
-        yclass_naive_v = sess.run('predictions:0',
-                             feed_dict={'input_puzzles:0': np.array([d[0] for d in data_naive_v]).astype(np.float32),
-                                        'is_training:0': False})
-        yclass_naive_score = sess.run('predictions:0', feed_dict={
-            'input_puzzles:0': np.array([d[0] for d in data_naive_score]).astype(np.float32), 'is_training:0': False})
-        y_back_class = sess.run('predictions:0', feed_dict={
-            'input_puzzles:0': np.array([d[0] for d in data_back_class]).astype(np.float32), 'is_training:0': False})
-
-        realplaydata, _, score_realplay = RL_realplay.Game(target, None, None, sess).play()
-        y_real = sess.run('predictions:0', feed_dict={
-            'input_puzzles:0': np.array([d[0] for d in realplaydata]).astype(np.float32), 'is_training:0': False})
-        print('haha')
+    process_data.join()
 
 
     """
+    sess.run(tf.global_variables_initializer())
+    r1 = 0
+    r2 = 0
     for i in range(0,1):
         print('--------------')
         target = utils.generate_target(width=20, height=20, density=0.9)

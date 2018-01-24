@@ -1,29 +1,14 @@
-# ###########################################
-# This script applys reinforcement learning and MCTS in tiling problems.
 
-# In MCTS,
-# 1. Pure -1 and +1 rewards during simulation have two disadvantages:
-#          (1): if all the simulation in a search have reward of (-1), the next real move will benefit nothing from the search
-#          (2): multiple simulations may end up in the same terminal state, which wastes the search resources
-#    In order to tackle this two disadvantages, we take into consideration the depth of the terminal state for the reward.
-# 2. We also use backup the state-value every L step, this make use of the training network to guild the search.
-##############################################
-import numpy as np
+# Use the trained probability of winning class as the back up value
+
+
 import tensorflow as tf
-from data_preprocessing import Goldenpositions,data_batch_iter
+import numpy as np
 from copy import deepcopy
-import utils
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from PIL import Image, ImageDraw
-from mysolution import Create_sample
-import time
-import multiprocessing
-import RL_naive_score
-import RL_naive_V
-import RL_classification
-import RL_realplay
-import RL_least_neighbor
+from data_preprocessing import Goldenpositions
+
+
+
 
 GLOBAL_PARAMETERS={
     'N game per cpu per density':50,
@@ -47,7 +32,7 @@ def build_neuralnetwork(height,width):
     myGraph = tf.Graph()
     with myGraph.as_default():
         x = tf.placeholder(tf.float32,shape= [None,width*height], name='input_puzzles')
-        y_ = tf.placeholder(tf.float32, shape = [None], name='labels')
+        y_ = tf.placeholder(tf.float32, shape = [None,2], name='labels')
         is_training = tf.placeholder(tf.bool, name='is_training')
 
         def conv_block(ipt, filter_kernalsize, channels_in, channels_out, is_training, name):
@@ -111,19 +96,19 @@ def build_neuralnetwork(height,width):
         h_fc1 = tf.nn.relu( linear_fullyconnect(hidden_flat, width*height*1, 256, 'fully_connect_1') )
 
         #fully connect to scalar
-        h_fc2 = linear_fullyconnect(h_fc1, 256, 1, 'fully_connect_2')
-        y = tf.tanh(h_fc2)
-        y = tf.reshape(y, shape=[-1,], name='predictions')
+        y = linear_fullyconnect(h_fc1, 256, 2, 'fully_connect_2')
+        prob = tf.nn.softmax(y)
+        predictions = tf.multiply(prob[:,0]-0.5,2,name='predictions')
+
 
         lossL2 = tf.add_n([tf.nn.l2_loss(variable) for variable in tf.trainable_variables()
                            if 'bias' not in variable.name]) * 0.0001
 
-        mse = tf.reduce_mean( tf.squared_difference(y,y_), name='MSError' )
-        loss = tf.add(mse, lossL2, name='total_loss')
-
-        #summary
-        tf.summary.scalar('loss',loss)
-        merged = tf.summary.merge_all()
+        cross_entropy = tf.reduce_mean(
+            tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
+        loss = tf.add(cross_entropy, lossL2, name='total_loss')
+        correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name='accuracy')
 
         #train
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -553,137 +538,4 @@ def record_data_into_file(file,data):
     file.writelines(str(data)+'\n')
     file.flush()
     return
-
-
-
-def visualisation(target, solution):
-    """
-    Displays the target vs the solution
-    :param target: target shape
-    :param solution: student's solution
-    """
-    Ty_len = len(target)
-    Tx_len = len(target[0])
-    Sy_len = len(solution)
-    Sx_len = len(solution[0])
-
-    fig, (ax1, ax2) = plt.subplots(1, 2)  # Create figure and axes
-    im = Image.new('RGB', (Tx_len, Ty_len), (255, 255, 255))  # white background-image
-    dr = ImageDraw.Draw(im)
-    ax1.imshow(im)  # Display the background-image
-    ax2.imshow(im)
-
-    # -------------------- Target Display ----------------------
-    for y in range(Ty_len):
-        row = target[y]
-        for x in range(Tx_len):
-            if row[x] == 1:
-                ax1.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color='b'))  # draw a block
-    ax1.set_title('The Display of Task')
-    ax1.set_xlim([-1, Tx_len + 1])
-    ax1.set_ylim([-1, Ty_len + 1])
-    ax1.invert_yaxis()
-
-    # --------------- Solution Display ----------------------
-    for y in range(Sy_len):
-        row = solution[y]
-        for x in range(Sx_len):
-            if row[x] == 1:
-                ax2.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color='b'))  # draw a block
-    ax2.set_title('The Display of Task')
-    ax2.set_xlim([-1, Sx_len + 1])
-    ax2.set_ylim([-1, Sy_len + 1])
-    ax2.invert_yaxis()
-
-
-    plt.show()
-
-if __name__ == "__main__":
-    """
-    dataQue = multiprocessing.Queue(GLOBAL_PARAMETERS['dataQ maxsize'])
-    nnQue = multiprocessing.Queue()
-    process_data= multiprocessing.Process(target=play_process,args=(dataQue,nnQue,))
-    process_train = multiprocessing.Process(target=train_nn, args=(dataQue,nnQue, 0, 1))
-    process_train.start()
-    process_data.start()
-    process_train.join()
-    process_data.join()"""
-
-    target = utils.generate_target(width=20, height=20, density=0.6)
-
-
-    data_naive_v, _, score_naive_v = RL_naive_V.Game(target,100,5,None).play()
-    data_naive_score, _, score_naive_score = RL_naive_score.Game(target,100,5,None).play()
-    data_neibor, _, score_neibor = RL_least_neighbor.Game(target, 100, 5, None).play()
-    utils.validation(target,data_naive_score)
-    utils.validation(target, data_neibor)
-    sess = build_neuralnetwork(20,20)
-
-    with sess:
-        saver=tf.train.Saver()
-        saver.restore(sess,'../TetrisPuzzle_RL_data/saver/model_2.ckpt')
-        data_back_value, _, score_value = Game(target, 100, 5, sess).play()
-
-        y_naive_v = sess.run('predictions:0',feed_dict={'input_puzzles:0':np.array([d[0] for d in data_naive_v]).astype(np.float32),'is_training:0': False})
-        y_naive_score = sess.run('predictions:0',feed_dict={'input_puzzles:0': np.array([d[0] for d in data_naive_score]).astype(np.float32),'is_training:0': False})
-        y_back_value = sess.run('predictions:0',feed_dict={'input_puzzles:0': np.array([d[0] for d in data_back_value]).astype(np.float32),'is_training:0': False})
-
-    sess = RL_classification.build_neuralnetwork(20, 20)
-    with sess:
-        saver = tf.train.Saver()
-        saver.restore(sess, '../TetrisPuzzle_RL_data/saver/supervised.ckpt')
-        data_back_class, _, score_class = RL_classification.Game(target, 100, 5, sess).play()
-        yclass_naive_v = sess.run('predictions:0',
-                             feed_dict={'input_puzzles:0': np.array([d[0] for d in data_naive_v]).astype(np.float32),
-                                        'is_training:0': False})
-        yclass_naive_score = sess.run('predictions:0', feed_dict={
-            'input_puzzles:0': np.array([d[0] for d in data_naive_score]).astype(np.float32), 'is_training:0': False})
-        y_back_class = sess.run('predictions:0', feed_dict={
-            'input_puzzles:0': np.array([d[0] for d in data_back_class]).astype(np.float32), 'is_training:0': False})
-
-        realplaydata, _, score_realplay = RL_realplay.Game(target, None, None, sess).play()
-        y_real = sess.run('predictions:0', feed_dict={
-            'input_puzzles:0': np.array([d[0] for d in realplaydata]).astype(np.float32), 'is_training:0': False})
-        print('haha')
-
-
-    """
-    for i in range(0,1):
-        print('--------------')
-        target = utils.generate_target(width=20, height=20, density=0.9)
-        #target=[[0, 1, 1, 0, 0, 0, 1, 1, 1, 1], [0, 0, 1, 1, 1, 1, 1, 1, 0, 1], [0, 0, 0, 0, 1, 1, 1, 0, 1, 1], [1, 1, 1, 1, 0, 1, 0, 1, 1, 1], [0, 1, 1, 1, 0, 1, 0, 1, 0, 1], [0, 1, 1, 1, 1, 1, 1, 1, 0, 0], [1, 1, 0, 0, 1, 1, 0, 1, 0, 0], [1, 0, 0, 0, 1, 1, 1, 0, 0, 1], [1, 0, 0, 1, 1, 1, 0, 1, 1, 1], [0, 1, 1, 1, 1, 0, 0, 0, 0, 0]]
-        print('target', np.array(target))
-
-        game1 = Game(target,100,5,sess)
-        #game2 = RLnode.Game(target,100,5,sess)
-        game1data = game1.play()
-        #game2data = game2.play()
-        #if len(game1data)>len(game2data):
-        #    r1 += 1
-        #if len(game1data)<len(game2data):
-        #    r2 += 1
-
-        #print('backup+init edge wins: {}'.format(r1))
-        #print('backup node wins: {}'.format(r2))
-
-        for step in game1data:
-            print(np.reshape(step[0],[20,20]),step[1])
-        for step in game2data:
-            visualisation(target, np.reshape(step[0], [10, 10]))
-
-        target = np.array([[1, 1, 1, 1, 0, 0, 0, 1, 1, 1],
-        [1, 1, 1, 1, 0, 1, 0, 1, 1, 1],
-        [1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
-        [1, 1, 1, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 1, 1, 0, 1, 1, 1, 1, 1],
-        [0, 0, 0, 0, 1, 1, 0, 1, 0, 0],
-        [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-        [1, 1, 1, 0, 0, 0, 0, 0, 1, 1],
-        [1, 0, 1, 0, 1, 0, 0, 0, 1, 1],
-        [0, 1, 1, 1, 1, 1, 1, 0, 0, 0]]
-    """
-
-
-
-
 

@@ -34,6 +34,7 @@ def take(arm):
         arm['n'] += 1
         arm['Q'] = arm['W']/arm['n']
     else:
+        arm['W'] -= 1
         arm['n'] += 1
         arm['Q'] = arm['W'] / arm['n']
 
