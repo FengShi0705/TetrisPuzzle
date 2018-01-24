@@ -7,7 +7,7 @@ import  numpy as np
 from data_preprocessing import Goldenpositions,data_batch_iter
 from copy import deepcopy
 import json
-import data_preprocessing
+import multiprocessing
 
 def build_neuralnetwork(height,width):
     myGraph = tf.Graph()
@@ -341,6 +341,10 @@ def solve_game(T, S):
                 data.append(( np.reshape(target, [-1]) , [1.0, 0.0]))
     return data
 
+#if __name__=='__main__':
+#    pool = multiprocessing.Pool(8)
+#    pool.starmap(begin_play, [('RLsamples_{}'.format(i),10000,) for i in range(8)])
+#    print('Finish Done')
 
 if __name__=='__main__':
     data=[]
@@ -367,7 +371,7 @@ if __name__=='__main__':
     sess = build_neuralnetwork(20, 20)
     with sess:
         sess.run(tf.global_variables_initializer())
-        batches = data_preprocessing.data_batch_iter(training_data, 64, 3)
+        batches = data_batch_iter(training_data, 64, 3)
         i = 0
         saver=tf.train.Saver()
         best_test_acc = 0.0
@@ -378,8 +382,9 @@ if __name__=='__main__':
                 print('step %d, training accuracy %g' % (i, train_accuracy))
 
             if i % 1000 == 0:
+                start_test_id = np.random.randint(len(test_data)-5000)
                 test_acc = sess.run('accuracy:0', feed_dict={
-                    'input_puzzles:0': test_x, 'labels:0': test_y, 'is_training:0': False})
+                    'input_puzzles:0': test_x[start_test_id:start_test_id+5000], 'labels:0': test_y[start_test_id:start_test_id+5000], 'is_training:0': False})
                 print('step %d, test accuracy %g' % (i, test_acc))
                 if test_acc > best_test_acc:
                     best_test_acc = test_acc
@@ -391,8 +396,9 @@ if __name__=='__main__':
                      feed_dict={'input_puzzles:0': inputdata, 'labels:0': outputdata, 'is_training:0': True})
             i += 1
 
+
         print('final test accuracy %g' % sess.run('accuracy:0', feed_dict={
-            'input_puzzles:0': test_x, 'labels:0': test_y, 'is_training:0': False}))
+            'input_puzzles:0': test_x[0:6000], 'labels:0': test_y[0:6000], 'is_training:0': False}))
 
 
 
