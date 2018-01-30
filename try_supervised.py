@@ -561,7 +561,7 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
     print('epoch:{}'.format(epoch))
     learning_rate = 1e-4
     print('learning_rate:{}'.format(learning_rate))
-    print('Tetris_filtering:{}',format(Tetris_filtering))
+    print('Tetris_filtering:{}'.format(Tetris_filtering))
 
     print('training data: {}'.format(dataset))
     with open(dataset,'rb') as f:
