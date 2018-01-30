@@ -7,18 +7,8 @@ import numpy as np
 import tensorflow as tf
 from data_preprocessing import Goldenpositions,data_batch_iter
 from copy import deepcopy
-import utils
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from PIL import Image, ImageDraw
 from mysolution import Create_sample
 import time
-import multiprocessing
-import RL_naive_score
-import RL_naive_V
-import RL_classification
-import RL_realplay
-import RL_least_neighbor
 import pickle
 
 GLOBAL_PARAMETERS={
