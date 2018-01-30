@@ -631,6 +631,8 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
             total_data = total_data[-GLOBAL_PARAMETERS['dataQ maxsize']:]
             with open('total_data.pickle', 'wb') as dfile:
                 pickle.dump(total_data, dfile)
+            print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                  ': Saved generated data into total_data.pickle which has {} datasets now'.format(len(total_data)))
 
             # training data
             newdata = np.array(newdata)
