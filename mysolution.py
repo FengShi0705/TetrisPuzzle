@@ -1,7 +1,6 @@
 import numpy as np
 import random
 import json
-from check import check
 import itertools
 import operator
 import math

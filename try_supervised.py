@@ -566,7 +566,10 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
     print('training data: {}'.format(dataset))
     with open(dataset,'rb') as f:
         #data = pickle.loads(pickle.load(f))
-        data = pickle.load(f)
+        total_data = pickle.load(f)
+    data = []
+    for dset in total_data:
+        data.extend(dset)
     print('number of total data: {}'.format(len(data)))
 
     data = np.array(data)
