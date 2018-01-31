@@ -576,7 +576,7 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
     shuffle_indices = np.random.permutation(np.arange(len(data)))
     shuffled_data = data[shuffle_indices]
     train_sample_index = int(0.8 * float(len(data)))
-    training_data, test_data = shuffled_data[:len(data)-2000], shuffled_data[len(data)-2000:]
+    training_data, test_data = shuffled_data[:len(data)-5000], shuffled_data[len(data)-5000:]
     print('Number of training data samples: {}'.format(len(training_data)))
     print('Number of test data samples: {}'.format(len(test_data)))
     test_x, test_y = zip(*test_data)
@@ -586,10 +586,12 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
     #train
     sess = build_neuralnetwork(20,20,nframes,n_res_blocks, Tetris_filtering)
     with sess:
-        sess.run(tf.global_variables_initializer())
+        saver = tf.train.Saver()
+        #sess.run(tf.global_variables_initializer())
+        saver.restore(sess,'./{}.ckpt'.format(savemodel))
+        print("Model restored from file: {}".format(savemodel) )
         batches = data_batch_iter(training_data, 32, epoch)
         i = 0
-        saver=tf.train.Saver()
         minloss = float('inf')
         for inputdata,outputdata in batches:
             if i % 100 == 0:
