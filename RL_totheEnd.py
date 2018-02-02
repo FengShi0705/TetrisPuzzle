@@ -10,17 +10,18 @@ from copy import deepcopy
 from mysolution import Create_sample
 import time
 import pickle
+import math
 
 GLOBAL_PARAMETERS={
-    'N games play':200,
+    'N games per density':10,
     'blank_range':[0.4],
     'backup per L': 5,
     'simulation per move': 100,
     'width':20,
     'height':20,
     'batchsize':32,
-    'epoch per training': 1,
-    'dataQ maxsize':20
+    #'epoch per training': 1,
+    'dataQ maxsize':10
 }
 
 
@@ -514,47 +515,53 @@ class Game(object):
         return
 
 
+def play_to_the_end(target, first_round, rightdata, info, nframes, eval_sess,
+                    n_search=GLOBAL_PARAMETERS['simulation per move'],
+                    L_backup = GLOBAL_PARAMETERS['backup per L']):
 
+    game = Game(target, n_search, L_backup, nframes, eval_sess)
+    gamedata, result, score = game.play()
+
+    if first_round:
+        info['first_score'] = score
+
+    if result > 0:
+        return
+    else:
+        for i in range(len(gamedata) - 1, -1, -1):
+            if not np.array_equal(gamedata[i][0], rightdata[i][0]):
+                info['Data'].append( gamedata[i] )
+                info['Data'].append( rightdata[i] )
+            else:
+                differ_pos = i + 1
+                break
+        newtarget = np.reshape( rightdata[differ_pos][0], [20,20] ).astype(np.int)
+        play_to_the_end(newtarget , False, rightdata[differ_pos:], info, nframes, eval_sess )
+        return
 
 
 def play_games(eval_sess,nframes,
-               N=GLOBAL_PARAMETERS['N games play'],
                prob_blank_range = GLOBAL_PARAMETERS['blank_range'],
                height = GLOBAL_PARAMETERS['height'],
                width = GLOBAL_PARAMETERS['width'],
-               n_search = GLOBAL_PARAMETERS['simulation per move'],
-               L_backup = GLOBAL_PARAMETERS['backup per L']):
+
+               ):
     Data = []
     n_game = 0
     total_score = 0.0
-    for i in range(0, N):
+    print('Play games...:')
+    while len(Data) < 10000:
         for prob_blank in prob_blank_range:
             sample = Create_sample(height, width, prob_blank)
             sample.add_pieces()
             target, solution = sample.T, sample.S
-
-            game = Game(target, n_search, L_backup, nframes, eval_sess)
-            gamedata, result, score = game.play()
+            rightdata = solve_game(target, solution)
+            info = {'Data':[]}
+            play_to_the_end(target, True, rightdata, info, nframes, eval_sess)
+            Data.extend(info['Data'])
             n_game += 1
-            total_score += score
-
-            if result < 0:
-                blank_frame = np.zeros(height * width)
-                rightdata = solve_game(target, solution)
-                for j in range(len(gamedata)):
-                    if not np.array_equal(rightdata[j][0], gamedata[j][0]):
-                        if nframes > j + 1:
-                            history_right = [blank_frame for bf in range(nframes - (j + 1))]
-                            history_game = [blank_frame for bf in range(nframes - (j + 1))]
-                            for ef in range(0, j + 1):
-                                history_right.append(rightdata[ef][0])
-                                history_game.append(gamedata[ef][0])
-                        else:
-                            history_right = [rightdata[ef][0] for ef in range(j + 1 - nframes, j + 1)]
-                            history_game = [gamedata[ef][0] for ef in range(j + 1 - nframes, j + 1)]
-
-                        Data.append( ( np.reshape(history_right, [nframes * height * width]), 1.0 ) )
-                        Data.append( ( np.reshape(history_game, [nframes * height * width]), -1.0 ) )
+            total_score += info['first_score']
+            print('game {}th to end with {} data'.format(n_game, len(info['Data'])), end='/', flush=True)
 
     avg_score = total_score / n_game
     return {'Data': Data, 'score': avg_score}
@@ -654,7 +661,9 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
                   ': Training data size:{}. Number of total datasets: {} '.format(len(training_data), len(total_data)) )
 
             #train
-            batches = data_batch_iter(training_data, 32, 3)
+            epo = math.ceil( 320000 / len(training_data) )
+            print('train for {} epoch'.format(epo))
+            batches = data_batch_iter(training_data, 32, epo)
             epo_step = 0
             for inputdata, outputdata in batches:
                 if epo_step%100 == 0:
@@ -688,6 +697,8 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
                 })
                 time_step += 1
                 epo_step += 1
+                if epo_step == 10001:
+                    break
 
 
 

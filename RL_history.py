@@ -654,7 +654,7 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
                   ': Training data size:{}. Number of total datasets: {} '.format(len(training_data), len(total_data)) )
 
             #train
-            batches = data_batch_iter(training_data, 32, 1)
+            batches = data_batch_iter(training_data, 32, 3)
             epo_step = 0
             for inputdata, outputdata in batches:
                 if epo_step%100 == 0:
