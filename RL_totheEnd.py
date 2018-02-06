@@ -21,7 +21,7 @@ GLOBAL_PARAMETERS={
     'height':20,
     'batchsize':32,
     #'epoch per training': 1,
-    'dataQ maxsize':10
+    'dataQ maxsize':5
 }
 
 
@@ -533,10 +533,10 @@ def play_to_the_end(target, first_round, rightdata, info, nframes, eval_sess,
                 info['Data'].append( gamedata[i] )
                 info['Data'].append( rightdata[i] )
             else:
-                differ_pos = i + 1
+                new_pos = len(gamedata) - 1
                 break
-        newtarget = np.reshape( rightdata[differ_pos][0], [20,20] ).astype(np.int)
-        play_to_the_end(newtarget , False, rightdata[differ_pos:], info, nframes, eval_sess )
+        newtarget = np.reshape( rightdata[new_pos][0], [20,20] ).astype(np.int)
+        play_to_the_end(newtarget , False, rightdata[new_pos:], info, nframes, eval_sess )
         return
 
 
@@ -550,7 +550,7 @@ def play_games(eval_sess,nframes,
     n_game = 0
     total_score = 0.0
     print('Play games...:')
-    while len(Data) < 10000:
+    while len(Data) < 20000:
         for prob_blank in prob_blank_range:
             sample = Create_sample(height, width, prob_blank)
             sample.add_pieces()
@@ -675,7 +675,7 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
                     print(time.strftime("%Y-%m-%d %H:%M:%S"),
                           ': total training step {}, iter step {}, loss {}'.format (time_step, epo_step, trainloss ))
 
-                if epo_step % 1000 == 0:
+                if epo_step % 2000 == 0:
                     testloss = sess.run('MSError:0', feed_dict={
                         'input_puzzles:0': test_x.astype(np.float32),
                         'labels:0': test_y,
