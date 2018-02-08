@@ -15,7 +15,6 @@ import math
 GLOBAL_PARAMETERS={
     'N games per density':10,
     'blank_range':[0.4],
-    'backup per L': 5,
     'simulation per move': 100,
     'width':20,
     'height':20,
@@ -321,11 +320,12 @@ def build_neuralnetwork(height,width,nframes, n_resb_blocks, Tetris_filtering=Fa
 
 class Node(object):
 
-    def __init__(self,state,table,cumR,uniR):
+    def __init__(self,state,table,cumR,uniR, sess):
         self.table = table
         self.state = state
         self.cumR = cumR
         self.uniR = uniR
+        self.sess = sess
         self.expanded = False
         self.row = self.state.shape[0]
         self.col = self.state.shape[1]
@@ -349,6 +349,10 @@ class Node(object):
                     self.fetch_children(x,y)
                     if len(self.children)>0:
                         self.terminal = False
+                        self.V = self.sess.run('predictions:0',
+                                                      feed_dict={'input_puzzles:0': np.reshape(self.state, [ 1, self.row*self.col] ).astype(np.float32),
+                                                                 'is_training:0': False}
+                                              )[0]
                         return
                     else:
                         self.terminal = True
@@ -382,7 +386,7 @@ class Node(object):
                     self.children.append( self.table[stateid] )
                 else:
                     # create child
-                    c_node = Node(child_state,self.table, self.cumR+self.uniR, self.uniR)
+                    c_node = Node(child_state,self.table, self.cumR+self.uniR, self.uniR, self.sess)
                     # add in table
                     self.table[stateid] = c_node
                     #append child
@@ -407,13 +411,12 @@ class Simulation(object):
      This would not be efficient in supervised learning
     """
 
-    def __init__(self,rootnode,L,sess , nframe):
+    def __init__(self,rootnode, sess , nframe):
         self.nframe = nframe
         self.currentnode = rootnode
         self.sess = sess
         self.path = [rootnode]
-        self.L = L
-        self.t = 0
+
 
 
     def run(self):
@@ -421,34 +424,36 @@ class Simulation(object):
         while True:
             if not self.currentnode.expanded:
                 self.currentnode.check_explore()
-            if self.currentnode.terminal:
                 self.backup(self.currentnode.V)
-                break
-
-            if self.t > 0 and (self.t%self.L==0):
-                if self.nframe > len(self.path):
-                    history = [ np.zeros([ self.currentnode.row, self.currentnode.col]) for i in range(self.nframe - len(self.path)) ]
-                    for node in self.path:
-                        history.append( node.state )
+                return
+            else:
+                if self.currentnode.terminal:
+                    return
                 else:
-                    history = [ node.state for node in self.path[-self.nframe:] ]
+                    self.currentnode = self.selectfrom(self.currentnode)
+                    self.path.append(self.currentnode)
 
-                predict_value = self.sess.run('predictions:0',
-                                              feed_dict={'input_puzzles:0':np.reshape(history, [1,self.nframe*self.currentnode.row*self.currentnode.col]).astype(np.float32),
-                                                         'is_training:0': False}
-                                              )
-                self.backup(predict_value[0])
+
+            #if self.t > 0 and (self.t%self.L==0):
+            #    if self.nframe > len(self.path):
+            #        history = [ np.zeros([ self.currentnode.row, self.currentnode.col]) for i in range(self.nframe - len(self.path)) ]
+            #        for node in self.path:
+            #            history.append( node.state )
+            #    else:
+            #        history = [ node.state for node in self.path[-self.nframe:] ]
+
+            #    predict_value = self.sess.run('predictions:0',
+            #                                  feed_dict={'input_puzzles:0':np.reshape(history, [1,self.nframe*self.currentnode.row*self.currentnode.col]).astype(np.float32),
+            #                                             'is_training:0': False}
+            #                                  )
+            #    self.backup(predict_value[0])
                 #self.backup(0.0)
                 #for child in self.currentnode.children:
                 #    child.N = 0
                 #    child.Q = 0.0
                 #    child.W = 0.0
 
-            self.currentnode = self.selectfrom(self.currentnode)
-            self.path.append(self.currentnode)
-            self.t += 1
 
-        return
 
     def backup(self,v):
         for node in self.path:
@@ -460,7 +465,7 @@ class Simulation(object):
 
     def selectfrom(self,node):
         sum_N = np.sum([ child.N for child in node.children ])
-        value_max = (-100.0, None)
+        value_max = (float('-inf'), None)
         for child in node.children:
             v = child.Q + ( ( np.sqrt(2*sum_N) ) / (1 + child.N) )
             if v > value_max[0]:
@@ -471,23 +476,21 @@ class Simulation(object):
 
 class Game(object):
 
-    def __init__(self, target, n_search, L, nframes, sess):
+    def __init__(self, target, n_search, nframes, sess):
         self.nframes = nframes
         self.target = np.array(target)
         self.table = {}
         self.n_search = n_search
-        self.L = L
         self.sess = sess
 
-        self.current_realnode = Node(deepcopy(self.target),self.table, 0.0, 4/np.sum(self.target))
+        self.current_realnode = Node(deepcopy(self.target),self.table, 0.0, 4/np.sum(self.target), self.sess)
         self.table[self.current_realnode.state.tostring()] = self.current_realnode
         self.real_nodepath = [self.current_realnode]
 
     def play(self):
 
         while True:
-            if not self.current_realnode.expanded:
-                self.current_realnode.check_explore()
+            self.play_one_move(self.current_realnode)
 
             if self.current_realnode.terminal:
                 gamedata = []
@@ -498,13 +501,12 @@ class Game(object):
                         gamedata.append( (np.reshape(node.state, [-1]), self.current_realnode.V) )
 
                 return gamedata, self.current_realnode.V, self.current_realnode.score
-            else:
-                self.play_one_move(self.current_realnode)
+
 
 
     def play_one_move(self,startnode):
         for i in range(0,self.n_search):
-            simulation = Simulation(startnode,self.L,self.sess, self.nframes)
+            simulation = Simulation(startnode, self.sess, self.nframes)
             simulation.run()
 
 
@@ -516,10 +518,9 @@ class Game(object):
 
 
 def play_to_the_end(target, first_round, rightdata, info, nframes, eval_sess,
-                    n_search=GLOBAL_PARAMETERS['simulation per move'],
-                    L_backup = GLOBAL_PARAMETERS['backup per L']):
+                    n_search=GLOBAL_PARAMETERS['simulation per move']):
 
-    game = Game(target, n_search, L_backup, nframes, eval_sess)
+    game = Game(target, n_search, nframes, eval_sess)
     gamedata, result, score = game.play()
 
     if first_round:
