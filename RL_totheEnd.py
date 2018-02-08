@@ -21,7 +21,7 @@ GLOBAL_PARAMETERS={
     'height':20,
     'batchsize':32,
     #'epoch per training': 1,
-    'dataQ maxsize':5
+    'dataQ maxsize':20
 }
 
 
@@ -550,7 +550,7 @@ def play_games(eval_sess,nframes,
     n_game = 0
     total_score = 0.0
     print('Play games...:')
-    while len(Data) < 20000:
+    while len(Data) < 5000:
         for prob_blank in prob_blank_range:
             sample = Create_sample(height, width, prob_blank)
             sample.add_pieces()
@@ -697,7 +697,7 @@ def Main(dataset, savemodel, nframes, n_res_blocks,Tetris_filtering):
                 })
                 time_step += 1
                 epo_step += 1
-                if epo_step == 10001:
+                if epo_step == 4001:
                     break
 
 
