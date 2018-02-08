@@ -428,6 +428,7 @@ class Simulation(object):
                 return
             else:
                 if self.currentnode.terminal:
+                    self.backup(self.currentnode.V)
                     return
                 else:
                     self.currentnode = self.selectfrom(self.currentnode)
@@ -551,7 +552,7 @@ def play_games(eval_sess,nframes,
     n_game = 0
     total_score = 0.0
     print('Play games...:')
-    while len(Data) < 5000:
+    while len(Data) < 6000:
         for prob_blank in prob_blank_range:
             sample = Create_sample(height, width, prob_blank)
             sample.add_pieces()
