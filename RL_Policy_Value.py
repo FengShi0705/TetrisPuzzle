@@ -579,7 +579,7 @@ def data_generate(saver, train_sess, trainmodel, bestmodel, bestscore, nframes, 
 
 
 
-def Main(dataset, trainmodel, bestmodel, score_level, n_res_blocks):
+def Main(datafile, trainmodel, bestmodel, score_level, n_res_blocks):
 
     learning_rate = 1e-4
     Tetris_filtering = False
@@ -593,7 +593,7 @@ def Main(dataset, trainmodel, bestmodel, score_level, n_res_blocks):
     print('nframes:{}'.format(nframes))
 
 
-    with open(dataset, 'rb') as dfile:
+    with open(datafile, 'rb') as dfile:
         total_data = pickle.load(dfile)
 
     sess = build_neuralnetwork(20, 20, nframes, n_res_blocks, Tetris_filtering)
@@ -607,10 +607,10 @@ def Main(dataset, trainmodel, bestmodel, score_level, n_res_blocks):
             newdata,score,bestscore = data_generate(saver, sess, trainmodel, bestmodel, bestscore, nframes, gamesize)
             total_data.append(newdata)
             total_data = total_data[-GLOBAL_PARAMETERS['dataQ maxsize']:]
-            with open('{}.pickle'.format(dataset), 'wb') as dfile:
+            with open('{}'.format(datafile), 'wb') as dfile:
                 pickle.dump(total_data, dfile)
             print(time.strftime("%Y-%m-%d %H:%M:%S"),
-                  ': Saved generated data into {}.pickle which has {} datasets now'.format(dataset,len(total_data)))
+                  ': Saved generated data into {} which has {} datasets now'.format(datafile,len(total_data)))
 
             # training data
             newdata = np.array(newdata)
@@ -631,9 +631,9 @@ def Main(dataset, trainmodel, bestmodel, score_level, n_res_blocks):
                 'search_probabilities:0': test_p,
                 'is_training:0': False
             })
-            iter_minloss = iter_orignal_mse + iter_orignal_crossentro
+            iter_loss = iter_orignal_mse + iter_orignal_crossentro
             print(time.strftime("%Y-%m-%d %H:%M:%S"),
-                  ': Generate {} data with score: {} and total_loss: {} (mse:{},cross_entro:{}) '.format(len(newdata),score,iter_minloss, iter_orignal_mse, iter_orignal_crossentro))
+                  ': Generate {} data with score: {} and total_loss: {} (mse:{},cross_entro:{}) '.format(len(newdata),score,iter_loss, iter_orignal_mse, iter_orignal_crossentro))
             print(time.strftime("%Y-%m-%d %H:%M:%S"),
                   ': which is divided into {} training data and {} test data'.format(len(newtrain), len(test_data)))
             print(time.strftime("%Y-%m-%d %H:%M:%S"),
