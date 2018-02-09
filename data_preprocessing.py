@@ -79,6 +79,46 @@ def data_batch_iter(training_data, batch_size, num_epochs, shuffle=True):
             y = np.array(y)
             yield x,y
 
+
+
+def data_batch_iter_three(training_data, batch_size, num_epochs, shuffle=True):
+    """
+    generate batch data from training_data
+    :param training_data:
+    :param batch_size:
+    :param num_epochs:
+    :param shuffle:
+    :return:
+    """
+    data = np.array(training_data)
+    data_size = len(data)
+    num_batches_per_epoch = int( (len(data)-1)/batch_size ) + 1
+
+    for epoch in range(num_epochs):
+        # Shuffle the data at each epoch
+        if shuffle:
+            shuffle_indices = np.random.permutation(np.arange(data_size))
+            shuffled_data = data[shuffle_indices]
+        else:
+            shuffled_data = data
+        for batch_num in range(num_batches_per_epoch):
+            start_index = batch_num * batch_size
+            end_index = min( data_size, (batch_num+1)*batch_size  )
+            batch_data = shuffled_data[start_index:end_index]
+            x,y,p = zip(*batch_data)
+            x = np.array(x)
+            y = np.array(y)
+            p = np.array(p)
+            yield x,y,p
+
+
+def data_test_three(test_data):
+    test_x, test_y, test_p = zip(*test_data)
+    test_x = np.array(test_x)
+    test_y = np.array(test_y)
+    test_p = np.array(test_p)
+    return test_x, test_y, test_p
+
 def indexto_shape_pos(i):
     """
     map index (ranging from 0 to 76) to shape and position

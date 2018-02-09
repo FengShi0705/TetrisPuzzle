@@ -16,7 +16,7 @@ def multiarmed_bandit(T,p1,p2,p3):
     for t in range(1, T+1):
         values = []
         for arm in arms:
-            v = arm['Q'] + ( sqrt(2*t) / (1+arm['n']) )
+            v = arm['Q'] + ( arm['p']*sqrt(2*t) / (1+arm['n']) )
             values.append((v,arm))
 
         #if len(values)==len(arms):
