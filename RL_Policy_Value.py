@@ -18,7 +18,7 @@ GLOBAL_PARAMETERS={
     'height':20,
     'batchsize':32,
     #'epoch per training': 1,
-    'dataQ maxsize':20,
+    'dataQ maxsize':15,
     'nframes': 1
 }
 
@@ -427,10 +427,10 @@ class Game(object):
                 assert len(self.search_Ps)==len(self.real_nodepath), 'size of search prob not equal to real_nodepath'
                 gamedata = []
                 for i, node in enumerate(self.real_nodepath):
-                    if i == 0:
-                        gamedata.append((np.reshape(node.state, [-1]), 1.0, self.search_Ps[i]))
-                    else:
-                        gamedata.append((np.reshape(node.state, [-1]), self.current_realnode.V, self.search_Ps[i]))
+                    #if i == 0:
+                    #    gamedata.append((np.reshape(node.state, [-1]), 1.0, self.search_Ps[i]))
+                    #else:
+                    gamedata.append((np.reshape(node.state, [-1]), self.current_realnode.V, self.search_Ps[i]))
 
                 return gamedata, self.current_realnode.V, self.current_realnode.score
 
@@ -442,7 +442,7 @@ class Game(object):
             simulation.run()
 
 
-        (maxN,maxedge) = max([(edge.N, edge) for edge in startnode.edges], key=lambda s:s[0])
+        (maxQ,maxedge) = max([(edge.Q, edge) for edge in startnode.edges], key=lambda s:s[0])
         search_prob = np.zeros(19, dtype=np.float32)
         search_prob[maxedge.Prob_id] = 1.0
         self.search_Ps.append( search_prob )
@@ -465,13 +465,15 @@ def play_to_the_end(target, first_round, rightdata, info, nframes, eval_sess,
     if result > 0:
         return
     else:
-        for i in range(len(gamedata) - 1, -1, -1):
-            if not np.array_equal(gamedata[i][0], rightdata[i][0]):
-                info['Data'].append(gamedata[i])
-                info['Data'].append(rightdata[i])
-            else:
-                new_pos = len(gamedata) - 1
-                break
+        #for i in range(len(gamedata) - 1, -1, -1):
+        for i in range(len(gamedata)):
+            #if not np.array_equal(gamedata[i][0], rightdata[i][0]):
+            info['Data'].append(gamedata[i])
+            info['Data'].append(rightdata[i])
+            #else:
+            #    new_pos = len(gamedata) - 1
+            #    break
+        new_pos = len(gamedata)
         newtarget = np.reshape(rightdata[new_pos][0], [20, 20]).astype(np.int)
         play_to_the_end(newtarget, False, rightdata[new_pos:], info, nframes, eval_sess)
         return
