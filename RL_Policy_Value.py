@@ -568,12 +568,14 @@ def data_generate(saver, train_sess, trainmodel, bestmodel, bestscore, nframes, 
         saver.restore(train_sess, './{}.ckpt'.format(bestmodel))
         print(time.strftime("%Y-%m-%d %H:%M:%S"),
               'restore bestmodel {} for data generation'.format(bestmodel))
-        result = play_games(train_sess, nframes, gamesize)
+        newdata = result['Data']
+        result = play_games(train_sess, nframes, gamesize-25)
+        newdata.extend(result['Data'])
 
         saver.restore(train_sess, './{}.ckpt'.format(trainmodel))
         print(time.strftime("%Y-%m-%d %H:%M:%S"),
               'restore train_model {} for training'.format(trainmodel))
-        return result['Data'], result['score'], bestscore
+        return newdata, result['score'], bestscore
 
 
 
@@ -640,9 +642,9 @@ def Main(datafile, trainmodel, bestmodel, score_level, n_res_blocks):
                   ': Training data size:{}. Number of total datasets: {} '.format(len(training_data), len(total_data)) )
 
             #train
-            epo = math.ceil( 320000 / len(training_data) )
-            print('train for {} epoch'.format(epo))
-            batches = data_batch_iter_three(training_data, 32, epo)
+            #epo = math.ceil( 320000 / len(training_data) )
+            #print('train for {} epoch'.format(epo))
+            batches = data_batch_iter_three(training_data, 32, 1)
             epo_step = 0
             for inputdata, outputdata, probdata in batches:
                 if epo_step%100 == 0:
@@ -665,6 +667,9 @@ def Main(datafile, trainmodel, bestmodel, score_level, n_res_blocks):
                     testloss = test_mse+test_crossentro
                     print(time.strftime("%Y-%m-%d %H:%M:%S"),
                           ': iter step %d, test loss %g (mse %g, cross entro %g)' % (epo_step, testloss, test_mse, test_crossentro))
+                    save_tain = saver.save(sess, './{}.ckpt'.format(trainmodel))
+                    print(time.strftime("%Y-%m-%d %H:%M:%S"),
+                          ': train_model saved in file: {} '.format(save_tain))
 
 
                 sess.run('train_mini', feed_dict={
@@ -676,5 +681,5 @@ def Main(datafile, trainmodel, bestmodel, score_level, n_res_blocks):
                 })
                 time_step += 1
                 epo_step += 1
-                if epo_step == 4001:
-                    break
+                #if epo_step == 4001:
+                #    break
