@@ -475,8 +475,11 @@ def play_to_the_end(target, first_round, rightdata, info, nframes, eval_sess,
             #    break
         new_pos = len(gamedata)
         newtarget = np.reshape(rightdata[new_pos][0], [20, 20]).astype(np.int)
-        play_to_the_end(newtarget, False, rightdata[new_pos:], info, nframes, eval_sess)
-        return
+        if np.sum(newtarget) == 0:
+            return
+        else:
+            play_to_the_end(newtarget, False, rightdata[new_pos:], info, nframes, eval_sess)
+            return
 
 
 def play_games(eval_sess, nframes, gamesize,
