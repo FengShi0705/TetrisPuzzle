@@ -529,28 +529,28 @@ def solve_game(T, S):
     return data
 
 
+def policy_data_process(size, name):
+    height = GLOBAL_PARAMETERS['height']
+    width = GLOBAL_PARAMETERS['width']
+    Data = []
+    n_game = 0
+    while len(Data) < size:
+        for prob_blank in GLOBAL_PARAMETERS['blank_range']:
+            sample = Create_sample(height, width, prob_blank)
+            sample.add_pieces()
+            target, solution = sample.T, sample.S
+            rightdata = solve_game(target, solution)
+            cleandata = rightdata[:-1]
+            Data.extend(cleandata)
+            n_game += 1
+            print('game {}th, data {}'.format(n_game, len(cleandata)))
+
+    with open('supervised_policy_data_{}.pickle'.format(name), 'wb') as dfile:
+        pickle.dump(Data, dfile)
+    print('Finish {}'.format(name))
+    return
+
 def Policy_data(start,end):
-    def policy_data_process(size,name):
-        height = GLOBAL_PARAMETERS['height']
-        width = GLOBAL_PARAMETERS['width']
-        Data = []
-        n_game = 0
-        while len(Data) < size:
-            for prob_blank in GLOBAL_PARAMETERS['blank_range']:
-                sample = Create_sample(height, width, prob_blank)
-                sample.add_pieces()
-                target, solution = sample.T, sample.S
-                rightdata = solve_game(target, solution)
-                Data.extend(rightdata[:-1])
-                n_game += 1
-                print('game {}th, data {}'.format(n_game, len(rightdata)) )
-
-        with open('supervised_policy_data_{}.pickle'.format(name), 'wb') as dfile:
-            pickle.dump(Data, dfile)
-        print('Finish {}'.format(name))
-        return
-
-
     pool = multiprocessing.Pool(end-start)
     pool.starmap(policy_data_process, [(100000,i) for i in range(start,end)])
     print('Finish Done')
