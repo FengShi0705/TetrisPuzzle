@@ -537,8 +537,8 @@ def play_to_the_end(target, first_round, rightdata, info, nframes, eval_sess,
             else:
                 new_pos = len(gamedata) - 1
                 break
-        newtarget = np.reshape( rightdata[new_pos][0], [20,20] ).astype(np.int)
-        play_to_the_end(newtarget , False, rightdata[new_pos:], info, nframes, eval_sess )
+        newtarget = np.reshape( rightdata[new_pos][0], [20, 20] ).astype(np.int)
+        play_to_the_end(newtarget, False, rightdata[new_pos:], info, nframes, eval_sess )
         return
 
 
@@ -563,7 +563,7 @@ def play_games(eval_sess,nframes,
             Data.extend(info['Data'])
             n_game += 1
             total_score += info['first_score']
-            print('game {}th to end with {} data'.format(n_game, len(info['Data'])), end='/', flush=True)
+            print('game {}th, data {}, score {}'.format(n_game, len(info['Data']), info['first_score']), end='/', flush=True)
 
     avg_score = total_score / n_game
     return {'Data': Data, 'score': avg_score}
