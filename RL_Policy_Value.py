@@ -11,14 +11,14 @@ import math
 
 
 GLOBAL_PARAMETERS={
-    'gamesize': 100,
+    'gamesize': 125,
     'blank_range':[0.4],
-    'simulation per move': 100,
+    'simulation per move': 200,
     'width':20,
     'height':20,
     'batchsize':32,
     #'epoch per training': 1,
-    'dataQ maxsize':15,
+    'dataQ maxsize':20,
     'nframes': 1
 }
 
@@ -416,6 +416,8 @@ class Game(object):
         self.real_nodepath = [self.current_realnode]
         self.search_Ps = []
 
+        self.current_realnode.check_explore()
+
     def play(self):
 
         while True:
@@ -437,12 +439,17 @@ class Game(object):
 
 
     def play_one_move(self,startnode):
+        #noise = np.random.dirichlet([1.0 for i in range(len(startnode.edges))])
+        noise = np.ones(len(startnode.edges), dtype=np.float32) / len(startnode.edges)
+        for i,edge in enumerate(startnode.edges):
+            edge.P = 0.75*edge.P + 0.25*noise[i]
+
         for i in range(0,self.n_search):
             simulation = Simulation(startnode, self.sess, self.nframes)
             simulation.run()
 
 
-        (maxQ,maxedge) = max([(edge.Q, edge) for edge in startnode.edges], key=lambda s:s[0])
+        (maxN,maxedge) = max([(edge.N, edge) for edge in startnode.edges], key=lambda s:s[0])
         search_prob = np.zeros(19, dtype=np.float32)
         search_prob[maxedge.Prob_id] = 1.0
         self.search_Ps.append( search_prob )
@@ -465,21 +472,16 @@ def play_to_the_end(target, first_round, rightdata, info, nframes, eval_sess,
     if result > 0:
         return
     else:
-        #for i in range(len(gamedata) - 1, -1, -1):
-        for i in range(len(gamedata)):
-            #if not np.array_equal(gamedata[i][0], rightdata[i][0]):
-            info['Data'].append(gamedata[i])
-            info['Data'].append(rightdata[i])
-            #else:
-            #    new_pos = len(gamedata) - 1
-            #    break
-        new_pos = len(gamedata)
-        newtarget = np.reshape(rightdata[new_pos][0], [20, 20]).astype(np.int)
-        if np.sum(newtarget) == 0:
-            return
-        else:
-            play_to_the_end(newtarget, False, rightdata[new_pos:], info, nframes, eval_sess)
-            return
+        for i in range(len(gamedata) - 1, -1, -1):
+            if not np.array_equal(gamedata[i][0], rightdata[i][0]):
+                info['Data'].append( gamedata[i] )
+                info['Data'].append( rightdata[i] )
+            else:
+                new_pos = len(gamedata) - 1
+                break
+        newtarget = np.reshape( rightdata[new_pos][0], [20, 20] ).astype(np.int)
+        play_to_the_end(newtarget, False, rightdata[new_pos:], info, nframes, eval_sess)
+        return
 
 
 def play_games(eval_sess, nframes, gamesize,
