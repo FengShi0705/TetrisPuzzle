@@ -783,10 +783,10 @@ class Simulation(object):
 
 
     def selectfrom(self,node):
-        sum_N = np.sum([ edge.N for edge in node.edges ])
+        sum_N = np.sum([ edge.N for edge in node.edges ]) + 1
         value_max = (float('-inf'), None)
         for edge in node.edges:
-            v = edge.Q + ( ( edge.P * np.sqrt(2*sum_N) ) / (1 + edge.N) )
+            v = edge.Q + ( ( edge.P * np.sqrt(sum_N) ) / (1 + edge.N) )
             if v > value_max[0]:
                 value_max = (v, edge)
 
