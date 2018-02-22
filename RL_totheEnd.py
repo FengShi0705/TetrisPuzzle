@@ -465,7 +465,8 @@ class Simulation(object):
 
 
     def selectfrom(self,node):
-        sum_N = np.sum([ child.N for child in node.children ]) + 1
+        # there is no probability, soly depend on Q and N
+        sum_N = np.sum([ child.N for child in node.children ])
         value_max = (float('-inf'), None)
         for child in node.children:
             v = child.Q + ( ( np.sqrt(2*sum_N) ) / (1 + child.N) )

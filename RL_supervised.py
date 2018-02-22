@@ -783,10 +783,12 @@ class Simulation(object):
 
 
     def selectfrom(self,node):
-        sum_N = np.sum([ edge.N for edge in node.edges ]) + 1
+        # since no probability term, no need to have +1
+        sum_N = np.sum([ edge.N for edge in node.edges ])
         value_max = (float('-inf'), None)
         for edge in node.edges:
-            v = edge.Q + ( ( edge.P * np.sqrt(sum_N) ) / (1 + edge.N) )
+            #v = edge.Q + ( ( edge.P * np.sqrt(sum_N) ) / (1 + edge.N) )
+            v = edge.Q + (( np.sqrt(sum_N)) / (1 + edge.N))
             if v > value_max[0]:
                 value_max = (v, edge)
 
@@ -838,7 +840,7 @@ class Game(object):
             simulation = Simulation(startnode, self.sess, self.nframes)
             simulation.run()
 
-
+        #Since it's naive MCTS, there is no probability. We just select max Q
         (maxQ,maxedge) = max([(edge.Q, edge) for edge in startnode.edges], key=lambda s:s[0])
         search_prob = np.zeros(19, dtype=np.float32)
         #search_prob[maxedge.Prob_id] = 1.0

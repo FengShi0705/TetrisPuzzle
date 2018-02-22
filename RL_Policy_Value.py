@@ -13,7 +13,7 @@ import math
 GLOBAL_PARAMETERS={
     'gamesize': 125,
     'blank_range':[0.4],
-    'simulation per move': 200,
+    'simulation per move': 100,
     'width':20,
     'height':20,
     'batchsize':32,
@@ -279,11 +279,13 @@ class Node(object):
                         return
                     else:
                         self.terminal = True
-                        self.score = self.cumR
+                        self.sign = self.cumR
+                        self.score = -1.0 + self.cumR
                         self.V = -1.0
                         return
 
         self.terminal = True
+        self.sign = 1.0
         self.score = 1.0
         self.V = 1.0
         return
@@ -390,6 +392,7 @@ class Simulation(object):
 
 
     def selectfrom(self,node):
+        # there is probability, so we need to +1 for probability term
         sum_N = np.sum([ edge.N for edge in node.edges ]) + 1
         value_max = (float('-inf'), None)
         for edge in node.edges:
@@ -434,7 +437,7 @@ class Game(object):
                     #else:
                     gamedata.append((np.reshape(node.state, [-1]), self.current_realnode.V, self.search_Ps[i]))
 
-                return gamedata, self.current_realnode.V, self.current_realnode.score
+                return gamedata, self.current_realnode.V, self.current_realnode.sign
 
 
 
@@ -448,8 +451,11 @@ class Game(object):
             simulation = Simulation(startnode, self.sess, self.nframes)
             simulation.run()
 
-
+        # N is a balance between Q and P
         (maxN,maxedge) = max([(edge.N, edge) for edge in startnode.edges], key=lambda s:s[0])
+        #if maxQ == 0.0:
+        #    print(startnode.state)
+        #    print([(edge.Q, edge.P, edge.N, edge.Prob_id) for edge in startnode.edges])
         search_prob = np.zeros(19, dtype=np.float32)
         search_prob[maxedge.Prob_id] = 1.0
         self.search_Ps.append( search_prob )
