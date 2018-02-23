@@ -112,6 +112,40 @@ def data_batch_iter_three(training_data, batch_size, num_epochs, shuffle=True):
             yield x,y,p
 
 
+def data_batch_iter_six(training_data, batch_size, num_epochs, shuffle=True):
+    """
+    generate batch data from training_data
+    :param training_data:
+    :param batch_size:
+    :param num_epochs:
+    :param shuffle:
+    :return:
+    """
+    data = np.array(training_data)
+    data_size = len(data)
+    num_batches_per_epoch = int( (len(data)-1)/batch_size ) + 1
+
+    for epoch in range(num_epochs):
+        # Shuffle the data at each epoch
+        if shuffle:
+            shuffle_indices = np.random.permutation(np.arange(data_size))
+            shuffled_data = data[shuffle_indices]
+        else:
+            shuffled_data = data
+        for batch_num in range(num_batches_per_epoch):
+            start_index = batch_num * batch_size
+            end_index = min( data_size, (batch_num+1)*batch_size  )
+            batch_data = shuffled_data[start_index:end_index]
+            x, action_taken, reward, discount, xend, legal_act = zip(*batch_data)
+            x = np.array(x)
+            action_taken = np.array(action_taken)
+            reward = np.array(reward)
+            discount = np.array(discount)
+            xend = np.array(xend)
+            legal_act = np.array(legal_act)
+            yield x, action_taken, reward, discount, xend, legal_act
+
+
 def data_test_three(test_data):
     test_x, test_y, test_p = zip(*test_data)
     test_x = np.array(test_x)
