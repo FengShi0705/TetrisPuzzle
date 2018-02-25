@@ -12,12 +12,13 @@ import pickle
 
 
 GLOBAL_PARAMETERS={
-    'gamesize': 100,
+    'gamesize': 10,
     'blank_range':[0.4],
     'simulation per move': 100,
     'width':20,
     'height':20,
     'batchsize':32,
+    'datasize': 300000
 }
 
 
@@ -203,12 +204,12 @@ def build_neuralnetwork(height,width,nframes, n_resb_blocks, Tetris_filtering=Fa
 
         #fully connect to 19 actions
         h_fc2 = linear_fullyconnect(h_fc1, 256, 19, 'fully_connect_2')
-        y = tf.tanh(h_fc2, name='predict_actionvalues')
+        ys = tf.tanh(h_fc2, name='predict_actionvalues')
         #y = tf.reshape(y, shape=[-1,], name='predictions')
-        legal_values = tf.multiply(y, legal_actions)
+        legal_values = tf.add(ys, legal_actions, name='legal_values')
         max_legal_values = tf.reduce_max(legal_values, axis=1, name='max_legal_action')
-        y = tf.multiply(y, action_taken)
-        y = tf.reduce_sum(y, axis=1, name='actionvalue_Taken')
+        ys = tf.multiply(ys, action_taken)
+        y = tf.reduce_sum(ys, axis=1, name='actionvalue_Taken')
 
         lossL2 = tf.add_n([tf.nn.l2_loss(variable) for variable in tf.trainable_variables()
                            if 'bias' not in variable.name]) * 0.0001
@@ -255,6 +256,7 @@ class Node(object):
         self.score facilitate the MCTS by considering the depth of the terminal
         """
         self.expanded = True
+        self.edges = []
 
         for y in range(0,self.row):
             for x in range(0,self.col):
@@ -284,7 +286,6 @@ class Node(object):
         return
 
     def fetch_edges(self,x,y):
-        self.edges = []
         for shape in range(1,20):
             available = True
             child_state = deepcopy(self.state)
@@ -329,9 +330,8 @@ class Simulation(object):
      This would not be efficient in supervised learning
     """
 
-    def __init__(self,rootnode, sess , Data, Data_gold):
+    def __init__(self,rootnode, sess , Data):
         self.Data = Data
-        self.Data_gold = Data_gold
         self.currentnode = rootnode
         self.sess = sess
         self.path = []
@@ -367,13 +367,18 @@ class Simulation(object):
         startn, endn = edge.start, edge.end
         action_taken = np.zeros(19, dtype=np.float32)
         action_taken[edge.action_id] = 1.0
+        legal_actions = (-2) * np.ones(19, dtype=np.float32)
+        for edge in endn.edges:
+            legal_actions[edge.action_id] = 0.0
 
         if endn.terminal:
-            self.Data_gold.append( (startn.feed_input, action_taken, endn.V) )
+            self.Data.append( (startn.feed_input,
+                                    action_taken,
+                                    endn.V,
+                                    0.0,
+                                    np.zeros(2 * endn.row * endn.col, dtype=np.int ),
+                                    np.zeros(19, dtype=np.float32)) )
         else:
-            legal_actions = np.zeros(19, dtype=np.float32)
-            for edge in endn.edges:
-                legal_actions[edge.action_id] = 1.0
             self.Data.append( (startn.feed_input,
                                action_taken,
                                1.0/startn.remain_steps,
@@ -400,7 +405,6 @@ class Game(object):
 
     def __init__(self, target, n_search, sess):
         self.Data = []
-        self.Data_gold = []
         self.target = np.array(target)
         self.table = {}
         self.n_search = n_search
@@ -419,14 +423,14 @@ class Game(object):
             self.play_one_move(self.current_realnode)
 
             if self.current_realnode.terminal:
-                return self.Data, self.Data_gold, self.current_realnode.V, self.current_realnode.remain_steps
+                return self.Data, self.current_realnode.V, self.current_realnode.remain_steps
 
 
 
     def play_one_move(self,startnode):
 
         for i in range(0,self.n_search):
-            simulation = Simulation(startnode, self.sess, self.Data, self.Data_gold)
+            simulation = Simulation(startnode, self.sess, self.Data)
             simulation.run()
 
         # soly on Q
@@ -457,8 +461,10 @@ def generate_targets(size, name,
 
 
 class Train:
-    def __init__(self, model, targets_set, dataset_to_create):
-        self.dataset_to_create = dataset_to_create
+    def __init__(self, model, targets_set, dataset):
+        self.dataset = dataset
+        with open(self.dataset, 'rb') as dfile:
+            self.total_data = pickle.load(dfile)
         self.model = model
         self.graph = build_neuralnetwork(20, 20, 2, 10, False)
         self.sess = tf.Session(graph=self.graph)
@@ -474,31 +480,28 @@ class Train:
     def play_games(self):
         np.random.shuffle(self.targets)
         Data = []
-        Data_gold = []
         n_game = 0
         total_score = 0.0
         print('Play games...:')
         for target in self.targets[:GLOBAL_PARAMETERS['gamesize']]:
             game = Game(target, GLOBAL_PARAMETERS['simulation per move'], self.sess)
-            gamedata, gamedata_gold, result, score = game.play()
+            gamedata, result, score = game.play()
             Data.extend(gamedata)
-            Data_gold.extend(gamedata_gold)
             n_game += 1
             total_score += score
-            print('game {}th, data {}, score {}'.format(n_game, len(gamedata) + len(gamedata_gold), score), end='/',flush=True)
+            print('game {}th, data {}, score {}'.format(n_game, len(gamedata), score), end='/',flush=True)
 
-        total_data = {'Data': Data, 'Data_gold': Data_gold}
-        with open('data_actionvalue_{}.pickle'.format(self.dataset_to_create), 'wb') as dfile:
-            pickle.dump(total_data, dfile)
+        self.total_data.extend(Data)
+        self.total_data = self.total_data[-GLOBAL_PARAMETERS['datasize']:]
+        with open(self.dataset, 'wb') as dfile:
+            pickle.dump(self.total_data, dfile)
         avg_score = total_score / n_game
         print(time.strftime("%Y-%m-%d %H:%M:%S"),
-              'Saved {} data with {} into {}'.format(len(Data) + len(Data_gold),
-                                                     avg_score,
-                                                     'data_actionvalue_{}.pickle'.format(self.dataset_to_create) )
+              'Saved {} data with {} into {}, which has {} total data'.format(len(Data),
+                                                                              avg_score,
+                                                                              self.dataset,
+                                                                              len(self.total_data))
               )
-
-        self.dataset_to_create += 1
-        print('Next dataset id {}'.format(self.dataset_to_create))
         return
 
 
@@ -514,66 +517,18 @@ class Train:
 
     def train(self):
         self.epo_step = 0
-        trainset_ids = [i for i in range(self.dataset_to_create)]
-        np.random.shuffle(trainset_ids)
-        print('shuffle training dataset: {}'.format(trainset_ids))
+        batches = data_batch_iter_six(self.total_data, 32, 1)
+        for startstates, actions, rewards, discounts, endstates, legal_acts in batches:
+            values = self.get_learning_target(rewards, discounts, endstates, legal_acts)
 
-        for trainset_id in trainset_ids:
-            print('training dataset {} ......'.format(trainset_id))
-            with open('data_actionvalue_{}.pickle'.format(trainset_id), 'rb') as dfile:
-                training_data = pickle.load(dfile)
-
-            print('training dataset {}, Data_gold ......'.format(trainset_id))
-            self.train_golden(training_data['Data_gold'])
-            print('training dataset {}, Data normal ......'.format(trainset_id))
-            self.train_normal(training_data['Data'])
-
-
-
-    def train_golden(self,trainingdata):
-        batches_gold = data_batch_iter_three(trainingdata, 32, 1)
-        for states, actions, values in batches_gold:
             if self.epo_step % 100 == 0:
-                train_mse = self.sess.run('MSError:0', feed_dict={
-                    'input_puzzles:0': states.astype(np.float32),
-                    'action_taken:0' : actions,
-                    'labels:0': values,
-                    'is_training:0': False
-                })
-                print(time.strftime("%Y-%m-%d %H:%M:%S"),': total step {}, epo step {}, train mse {}'.format(self.time_step, self.epo_step, train_mse))
-
-            self.sess.run('train_mini', feed_dict={
-                'input_puzzles:0': states.astype(np.float32),
-                'action_taken:0': actions,
-                'labels:0': values,
-                'is_training:0': True,
-                'learning_rate:0': 1e-4
-            })
-            self.time_step += 1
-            self.epo_step += 1
+                self.check_step(startstates,actions,values)
 
             if self.time_step % 1000 == 0:
+                self.check_step(startstates, actions, values)
                 self.update_save()
-
-
-    def train_normal(self,trainingdata):
-        batches = data_batch_iter_six(trainingdata, 32, 1)
-        for startstates, actions, rewards, discounts, endstates, legal_acts in batches:
-            maxvalues = self.sess_target.run('max_legal_action:0', feed_dict={
-                'input_puzzles:0': endstates.astype(np.float32),
-                'legal_actions:0': legal_acts,
-                'is_training:0': False
-            })
-            values = np.add(rewards, np.multiply(discounts,maxvalues) )
-
-            if self.epo_step % 100 == 0:
-                train_mse = self.sess.run('MSError:0', feed_dict={
-                    'input_puzzles:0': startstates.astype(np.float32),
-                    'action_taken:0': actions,
-                    'labels:0': values,
-                    'is_training:0': False
-                })
-                print(time.strftime("%Y-%m-%d %H:%M:%S"), ': total step {}, epo step {}, train mse {}'.format(self.time_step, self.epo_step, train_mse))
+                values = self.get_learning_target(rewards, discounts, endstates, legal_acts)
+                self.check_step(startstates, actions, values)
 
             self.sess.run('train_mini', feed_dict={
                 'input_puzzles:0': startstates.astype(np.float32),
@@ -584,16 +539,36 @@ class Train:
             })
             self.time_step += 1
             self.epo_step += 1
-            if self.time_step % 1000 == 0:
-                self.update_save()
+            if self.epo_step == 2001:
+                return
 
 
     def update_save(self):
         path = self.saver.save(self.sess, './{}.ckpt'.format(self.model))
         self.saver.restore(self.sess_target, './{}.ckpt'.format(self.model))
-        print('Save and restore {}'.format(path))
+        print('total time step {}, epo step {}, Save and restore {}'.format(self.time_step, self.epo_step, path))
         return
 
+    def check_step(self, states, actions, values):
+        train_mse, preV = self.sess.run(['MSError:0', 'actionvalue_Taken:0'], feed_dict={
+            'input_puzzles:0': states.astype(np.float32),
+            'action_taken:0': actions,
+            'labels:0': values,
+            'is_training:0': False
+        })
+        print(time.strftime("%Y-%m-%d %H:%M:%S"),
+              ': total step {}, epo step {}, train mse {}'.format(self.time_step, self.epo_step, train_mse))
+        print('target values: {}'.format(values))
+        print('current values: {}'.format(preV))
+
+    def get_learning_target(self,rewards, discounts, endstates, legal_acts):
+        maxvalues = self.sess_target.run('max_legal_action:0', feed_dict={
+            'input_puzzles:0': endstates.astype(np.float32),
+            'legal_actions:0': legal_acts,
+            'is_training:0': False
+        })
+        values = np.add(rewards, np.multiply(discounts, maxvalues))
+        return values
 
 
 
