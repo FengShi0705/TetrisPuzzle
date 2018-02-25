@@ -18,7 +18,7 @@ GLOBAL_PARAMETERS={
     'width':20,
     'height':20,
     'batchsize':32,
-    'datasize': 300000
+    'datasize': 250000
 }
 
 
@@ -343,12 +343,12 @@ class Simulation(object):
         while True:
             if not self.currentnode.expanded:
                 self.currentnode.check_explore()
-                self.backup(self.currentnode.V)
+                self.backup(self.currentnode.V, self.currentnode.remain_steps)
                 self.store_trains(self.path[-1])
                 return
             else:
                 if self.currentnode.terminal:
-                    self.backup(self.currentnode.V)
+                    self.backup(self.currentnode.V, self.currentnode.remain_steps)
                     return
                 else:
                     edge = self.selectfrom(self.currentnode)
@@ -356,9 +356,10 @@ class Simulation(object):
                     self.currentnode = edge.end
 
 
-    def backup(self,v):
+    def backup(self,v, sp):
         for edge in self.path:
-            edge.W += v
+            step = edge.start.remain_steps
+            edge.W += ((step - sp)/step) + (sp/step * v)
             edge.N += 1
             edge.Q = edge.W/edge.N
         return
