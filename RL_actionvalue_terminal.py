@@ -5,6 +5,7 @@ from data_preprocessing import Goldenpositions,data_batch_iter_three,data_batch_
 from mysolution import Create_sample
 import time
 import pickle
+import random
 
 # if use the total return of MCTS as the learning target, we can only use the real play move data which is limited. and the data
 # should be discarded after periods of training.
@@ -18,7 +19,7 @@ GLOBAL_PARAMETERS={
     'width':20,
     'height':20,
     'batchsize':32,
-    'datasize': 250000
+    'datasize': 300000
 }
 
 
@@ -204,9 +205,9 @@ def build_neuralnetwork(height,width,nframes, n_resb_blocks, Tetris_filtering=Fa
 
         #fully connect to 19 actions
         h_fc2 = linear_fullyconnect(h_fc1, 256, 19, 'fully_connect_2')
-        ys = tf.tanh(h_fc2, name='predict_actionvalues')
+        ys = tf.sigmoid(h_fc2, name='predict_actionvalues')
         #y = tf.reshape(y, shape=[-1,], name='predictions')
-        legal_values = tf.add(ys, legal_actions, name='legal_values')
+        legal_values = tf.multiply(ys, legal_actions, name='legal_values')
         max_legal_values = tf.reduce_max(legal_values, axis=1, name='max_legal_action')
         ys = tf.multiply(ys, action_taken)
         y = tf.reduce_sum(ys, axis=1, name='actionvalue_Taken')
@@ -233,15 +234,16 @@ class Edge(object):
     def __init__(self,start,end, action_id):
         self.start = start
         self.end = end
-        self.N = 1
+        self.N = 0
         self.action_id = action_id
 
 
 
 class Node(object):
 
-    def __init__(self,state,table,remain_steps, sess):
+    def __init__(self,state,table,remain_steps, sess, alledges):
         self.table = table
+        self.alledges = alledges
         self.state = state
         self.remain_steps = remain_steps
         self.sess = sess
@@ -272,17 +274,16 @@ class Node(object):
                                                       'is_training:0': False})[0]
                         for edge in self.edges:
                             edge.Q = self.Qs[edge.action_id]
-                            edge.W = edge.Q
 
                         self.V = max([edge.Q for edge in self.edges])
                         return
                     else:
                         self.terminal = True
-                        self.V = -1.0
+                        self.V = 0.0
                         return
 
         self.terminal = True
-        self.V = 1.0
+        self.V = 0.0
         return
 
     def fetch_edges(self,x,y):
@@ -306,12 +307,14 @@ class Node(object):
                     self.edges.append(ed)
                 else:
                     # create node
-                    c_node = Node(child_state, self.table, self.remain_steps-1, self.sess)
+                    c_node = Node(child_state, self.table, self.remain_steps-1, self.sess, self.alledges)
                     # add in table
                     self.table[stateid] = c_node
                     #append edge
                     ed = Edge(self, c_node, shape-1)
                     self.edges.append(ed)
+
+                self.alledges.append(ed)
 
         return
 
@@ -330,8 +333,7 @@ class Simulation(object):
      This would not be efficient in supervised learning
     """
 
-    def __init__(self,rootnode, sess , Data):
-        self.Data = Data
+    def __init__(self,rootnode, sess ):
         self.currentnode = rootnode
         self.sess = sess
         self.path = []
@@ -343,51 +345,33 @@ class Simulation(object):
         while True:
             if not self.currentnode.expanded:
                 self.currentnode.check_explore()
+                #self.backup(self.currentnode.V, self.currentnode.remain_steps)
+                #self.store_trains(self.path[-1])
+                #return
+            #else:
+            if self.currentnode.terminal:
                 self.backup(self.currentnode.V, self.currentnode.remain_steps)
-                self.store_trains(self.path[-1])
                 return
             else:
-                if self.currentnode.terminal:
-                    self.backup(self.currentnode.V, self.currentnode.remain_steps)
-                    return
-                else:
-                    edge = self.selectfrom(self.currentnode)
-                    self.path.append(edge)
-                    self.currentnode = edge.end
+                edge = self.selectfrom(self.currentnode)
+                self.path.append(edge)
+                self.currentnode = edge.end
 
 
     def backup(self,v, sp):
         for edge in self.path:
             step = edge.start.remain_steps
-            edge.W += ((step - sp)/step) + (sp/step * v)
-            edge.N += 1
-            edge.Q = edge.W/edge.N
+            newQ = ((step - sp)/step) + (sp/step * v)
+            if edge.N == 0 :
+                edge.N += 1
+                edge.Q = newQ
+            else:
+                edge.N += 1
+                if newQ > edge.Q:
+                    edge.Q = newQ
         return
 
-    def store_trains(self,edge):
-        startn, endn = edge.start, edge.end
-        action_taken = np.zeros(19, dtype=np.float32)
-        action_taken[edge.action_id] = 1.0
-        legal_actions = (-2) * np.ones(19, dtype=np.float32)
-        for edge in endn.edges:
-            legal_actions[edge.action_id] = 0.0
 
-        if endn.terminal:
-            self.Data.append( (startn.feed_input,
-                                    action_taken,
-                                    endn.V,
-                                    0.0,
-                                    np.zeros(2 * endn.row * endn.col, dtype=np.int ),
-                                    np.zeros(19, dtype=np.float32)) )
-        else:
-            self.Data.append( (startn.feed_input,
-                               action_taken,
-                               1.0/startn.remain_steps,
-                               1- (1.0/startn.remain_steps),
-                               endn.feed_input,
-                               legal_actions) )
-
-        return
 
 
     def selectfrom(self,node):
@@ -408,10 +392,11 @@ class Game(object):
         self.Data = []
         self.target = np.array(target)
         self.table = {}
+        self.alledges = []
         self.n_search = n_search
         self.sess = sess
 
-        self.current_realnode = Node(deepcopy(self.target),self.table, np.sum(self.target)/4, self.sess)
+        self.current_realnode = Node(deepcopy(self.target),self.table, np.sum(self.target)/4, self.sess, self.alledges)
         self.table[self.current_realnode.state.tostring()] = self.current_realnode
         self.real_nodepath = [self.current_realnode]
 
@@ -424,14 +409,43 @@ class Game(object):
             self.play_one_move(self.current_realnode)
 
             if self.current_realnode.terminal:
+                for edge in self.alledges:
+                    if edge.end.expanded:
+                        self.store_trains(edge)
                 return self.Data, self.current_realnode.V, self.current_realnode.remain_steps
+
+
+    def store_trains(self,edge):
+        startn, endn = edge.start, edge.end
+        action_taken = np.zeros(19, dtype=np.float32)
+        action_taken[edge.action_id] = 1.0
+        legal_actions = np.zeros(19, dtype=np.float32)
+        for endedge in endn.edges:
+            legal_actions[endedge.action_id] = 1.0
+
+        if endn.terminal:
+            self.Data.append( (startn.feed_input,
+                                    action_taken,
+                                    1.0 / startn.remain_steps,
+                                    0.0,
+                                    np.zeros(2 * endn.row * endn.col, dtype=np.int ),
+                                    np.zeros(19, dtype=np.float32)) )
+        else:
+            self.Data.append( (startn.feed_input,
+                               action_taken,
+                               1.0/startn.remain_steps,
+                               1- (1.0/startn.remain_steps),
+                               endn.feed_input,
+                               legal_actions) )
+
+        return
 
 
 
     def play_one_move(self,startnode):
 
         for i in range(0,self.n_search):
-            simulation = Simulation(startnode, self.sess, self.Data)
+            simulation = Simulation(startnode, self.sess)
             simulation.run()
 
         # soly on Q
@@ -480,17 +494,19 @@ class Train:
 
     def play_games(self):
         #np.random.shuffle(self.targets)
+        targi = random.randint(0,2)
         Data = []
         n_game = 0
         total_score = 0.0
         print('Play games...:')
-        for target in self.targets[:GLOBAL_PARAMETERS['gamesize']]:
+        #for target in self.targets[:GLOBAL_PARAMETERS['gamesize']]:
+        for target in self.targets[targi:targi+1]:
             game = Game(target, GLOBAL_PARAMETERS['simulation per move'], self.sess)
             gamedata, result, score = game.play()
             Data.extend(gamedata)
             n_game += 1
             total_score += score
-            print('game {}th, data {}, score {}'.format(n_game, len(gamedata), score), end='/',flush=True)
+            print('game {}th, data {}, score {}'.format(targi, len(gamedata), score), end='/',flush=True)
 
         self.total_data.extend(Data)
         self.total_data = self.total_data[-GLOBAL_PARAMETERS['datasize']:]
@@ -503,6 +519,7 @@ class Train:
                                                                               self.dataset,
                                                                               len(self.total_data))
               )
+        self.trainsteps = len(Data)
         return
 
 
@@ -511,21 +528,21 @@ class Train:
         self.time_step = 0
 
         while True:
-            self.train()
             self.play_games()
+            self.train()
 
         return
 
     def train(self):
         self.epo_step = 0
-        batches = data_batch_iter_six(self.total_data, 32, 1)
+        batches = data_batch_iter_six(self.total_data, 32, 10)
         for startstates, actions, rewards, discounts, endstates, legal_acts in batches:
             values = self.get_learning_target(rewards, discounts, endstates, legal_acts)
 
             if self.epo_step % 100 == 0:
                 self.check_step(startstates,actions,values)
 
-            if self.time_step % 1000 == 0:
+            if self.time_step % 3000 == 0:
                 self.check_step(startstates, actions, values)
                 self.update_save()
                 values = self.get_learning_target(rewards, discounts, endstates, legal_acts)
@@ -540,7 +557,7 @@ class Train:
             })
             self.time_step += 1
             self.epo_step += 1
-            if self.epo_step == 3001:
+            if self.epo_step > self.trainsteps:
                 return
 
 
