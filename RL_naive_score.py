@@ -252,7 +252,13 @@ class Simulation(object):
         for node in self.path:
             node.W += v
             node.N += 1
-            node.Q = node.W/node.N
+            if node.N == 1:
+                node.Q = v
+            elif node.N > 1:
+                if v > node.Q:
+                    node.Q = v
+            else:
+                raise TypeError('N should be >= 1, but not')
         return
 
 

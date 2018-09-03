@@ -227,7 +227,7 @@ class Simulation(object):
             if not self.currentnode.expanded:
                 self.currentnode.check_explore()
             if self.currentnode.terminal:
-                self.backup(self.currentnode.V)
+                self.backup(self.currentnode.score)
                 break
 
             #if self.t > 0 and (self.t%self.L==0):

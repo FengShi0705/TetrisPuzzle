@@ -1,3 +1,9 @@
+# This is the script for Approach 4 in reseach notes.
+# This script use the simulation experience as training data and play each simulation to the end.
+# However the problem is that this script use all the edges in the MCTS.
+# Actually, we should only use the edges along the simulation paths.
+
+
 import tensorflow as tf
 import numpy as np
 from copy import deepcopy
@@ -6,10 +12,6 @@ from mysolution import Create_sample
 import time
 import pickle
 import random
-
-# if use the total return of MCTS as the learning target, we can only use the real play move data which is limited. and the data
-# should be discarded after periods of training.
-# Therefore we use TD target as the learning target, and use MCTS to generate simulated data. which is plenty and can be reused.
 
 
 GLOBAL_PARAMETERS={
@@ -234,7 +236,7 @@ class Edge(object):
     def __init__(self,start,end, action_id):
         self.start = start
         self.end = end
-        self.N = 0
+        #self.N = 1
         self.action_id = action_id
 
 
@@ -274,6 +276,8 @@ class Node(object):
                                                       'is_training:0': False})[0]
                         for edge in self.edges:
                             edge.Q = self.Qs[edge.action_id]
+                            edge.N = 0
+                            #edge.W = edge.Q
 
                         self.V = max([edge.Q for edge in self.edges])
                         return
@@ -333,7 +337,9 @@ class Simulation(object):
      This would not be efficient in supervised learning
     """
 
-    def __init__(self,rootnode, sess ):
+    def __init__(self,rootnode, sess, toEND = False, updatemax = True ):
+        self.toEnd = toEND
+        self.updatemax = updatemax
         self.currentnode = rootnode
         self.sess = sess
         self.path = []
@@ -345,9 +351,9 @@ class Simulation(object):
         while True:
             if not self.currentnode.expanded:
                 self.currentnode.check_explore()
-                #self.backup(self.currentnode.V, self.currentnode.remain_steps)
-                #self.store_trains(self.path[-1])
-                #return
+                # self.backup(self.currentnode.V, self.currentnode.remain_steps)
+                #if not self.toEnd:
+                #    return
             #else:
             if self.currentnode.terminal:
                 self.backup(self.currentnode.V, self.currentnode.remain_steps)
@@ -359,9 +365,18 @@ class Simulation(object):
 
 
     def backup(self,v, sp):
-        for edge in self.path:
+        assert v == 0.0, 'terminal V should be 0.0, but not'
+        for edge in reversed(self.path):
             step = edge.start.remain_steps
             newQ = ((step - sp)/step) + (sp/step * v)
+            #edge.W += ((step - sp) / step) + (sp / step * v)
+            #edge.N += 1
+            #edge.Q = edge.W / edge.N
+            #if self.updatemax:
+            #    if len(edge.start.edges) > 1:
+            #        if edge.Q < max([ed.Q for ed in edge.start.edges if ed is not edge]):
+            #            break
+
             if edge.N == 0 :
                 edge.N += 1
                 edge.Q = newQ
@@ -379,7 +394,7 @@ class Simulation(object):
         sum_N = np.sum([ edge.N for edge in node.edges ])
         value_max = (float('-inf'), None)
         for edge in node.edges:
-            v = edge.Q + ( ( np.sqrt(sum_N) ) / (1 + edge.N) )
+            v = edge.Q + ( ( 0.5 * np.sqrt(sum_N) ) / (1 + edge.N) )
             if v > value_max[0]:
                 value_max = (v, edge)
 
@@ -388,7 +403,10 @@ class Simulation(object):
 
 class Game(object):
 
-    def __init__(self, target, n_search, sess):
+    def __init__(self, target, n_search, sess, proportional, toEND, updatemax):
+        self.proportional = proportional
+        self.toEND = toEND
+        self.updatemax = updatemax
         self.Data = []
         self.target = np.array(target)
         self.table = {}
@@ -445,14 +463,33 @@ class Game(object):
     def play_one_move(self,startnode):
 
         for i in range(0,self.n_search):
-            simulation = Simulation(startnode, self.sess)
+            simulation = Simulation(startnode, self.sess, self.toEND, self.updatemax)
             simulation.run()
 
-        # soly on Q
-        (maxQ,maxedge) = max([(edge.Q, edge) for edge in startnode.edges], key=lambda s:s[0])
-        self.current_realnode = maxedge.end
+        if self.proportional:
+            sl_edge = self.select_proportional_N(startnode)
+        else:
+            # soly on Q
+            (maxQ,sl_edge) = max([(edge.Q, edge) for edge in startnode.edges], key=lambda s:s[0])
+
+        self.current_realnode = sl_edge.end
         self.real_nodepath.append(self.current_realnode)
         return
+
+    def select_proportional_N(self,node):
+        ns = [edge.N for edge in node.edges]
+        sum_n = sum(ns)
+        track = 0
+        prob = []
+        for n in ns:
+            track += n/sum_n
+            prob.append(track)
+        randv = np.random.uniform()
+        for i,v in enumerate(prob):
+            if randv < v:
+                eid = i
+                break
+        return node.edges[eid]
 
 
 def generate_targets(size, name,
@@ -494,19 +531,22 @@ class Train:
 
     def play_games(self):
         #np.random.shuffle(self.targets)
-        targi = random.randint(0,2)
+
         Data = []
         n_game = 0
         total_score = 0.0
         print('Play games...:')
         #for target in self.targets[:GLOBAL_PARAMETERS['gamesize']]:
-        for target in self.targets[targi:targi+1]:
-            game = Game(target, GLOBAL_PARAMETERS['simulation per move'], self.sess)
-            gamedata, result, score = game.play()
+        while True:
+            targi = random.randint(0,999)
+            game = Game(self.targets[targi], GLOBAL_PARAMETERS['simulation per move'], self.sess, False, True, True)
+            gamedata, _, score = game.play()
             Data.extend(gamedata)
+            print('game {}th, data {}, score {}, proportional False'.format(targi, len(gamedata), score), end='/',flush=True)
             n_game += 1
             total_score += score
-            print('game {}th, data {}, score {}'.format(targi, len(gamedata), score), end='/',flush=True)
+            # if len(Data) > 10000 :
+            break
 
         self.total_data.extend(Data)
         self.total_data = self.total_data[-GLOBAL_PARAMETERS['datasize']:]
@@ -535,7 +575,7 @@ class Train:
 
     def train(self):
         self.epo_step = 0
-        batches = data_batch_iter_six(self.total_data, 32, 10)
+        batches = data_batch_iter_six(self.total_data, 32, 1)
         for startstates, actions, rewards, discounts, endstates, legal_acts in batches:
             values = self.get_learning_target(rewards, discounts, endstates, legal_acts)
 
@@ -557,8 +597,8 @@ class Train:
             })
             self.time_step += 1
             self.epo_step += 1
-            if self.epo_step > self.trainsteps:
-                return
+            #if self.epo_step > self.trainsteps:
+            #    return
 
 
     def update_save(self):

@@ -1,3 +1,7 @@
+# This is the script for Approach 4 in reseach notes.
+# This script use the simulation experience as training data and only store the edges along the simulation paths into transition database,
+# which is good. However the problem is that the simulation is not played to the end!!!!
+
 import tensorflow as tf
 import numpy as np
 from copy import deepcopy
@@ -5,10 +9,6 @@ from data_preprocessing import Goldenpositions,data_batch_iter_three,data_batch_
 from mysolution import Create_sample
 import time
 import pickle
-
-# if use the total return of MCTS as the learning target, we can only use the real play move data which is limited. and the data
-# should be discarded after periods of training.
-# Therefore we use TD target as the learning target, and use MCTS to generate simulated data. which is plenty and can be reused.
 
 
 GLOBAL_PARAMETERS={
@@ -479,7 +479,7 @@ class Train:
             self.saver.restore(self.sess_target, './{}.ckpt'.format(self.model))
 
     def play_games(self):
-        np.random.shuffle(self.targets)
+        #np.random.shuffle(self.targets)
         Data = []
         n_game = 0
         total_score = 0.0
@@ -540,7 +540,7 @@ class Train:
             })
             self.time_step += 1
             self.epo_step += 1
-            if self.epo_step == 2001:
+            if self.epo_step == 3001:
                 return
 
 

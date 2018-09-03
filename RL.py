@@ -24,6 +24,8 @@ import RL_naive_V
 import RL_classification
 import RL_realplay
 import RL_least_neighbor
+import RL_history
+import RL_TDsearch
 
 GLOBAL_PARAMETERS={
     'N game per cpu per density':50,
@@ -608,31 +610,43 @@ if __name__ == "__main__":
     process_data.start()
     process_train.join()
     process_data.join()"""
+    for n in range(100):
+        target = utils.generate_target(width=20, height=20, density=0.6)
 
-    target = utils.generate_target(width=20, height=20, density=0.6)
-
-
-    data_naive_v, _, score_naive_v = RL_naive_V.Game(target,100,5,None).play()
-    data_naive_score, _, score_naive_score = RL_naive_score.Game(target,100,5,None).play()
-    data_neibor, _, score_neibor = RL_least_neighbor.Game(target, 100, 5, None).play()
-    utils.validation(target,data_naive_score)
-    utils.validation(target, data_neibor)
-    sess = build_neuralnetwork(20,20)
+        print('{}th ...'.format(n))
+        data_naive_v, _, score_naive_v = RL_naive_V.Game(target,400, None,None).play()
+        print('normal: {}'.format(score_naive_v))
+        data_naive_score, _, score_naive_score = RL_naive_score.Game(target, 400, None,None).play()
+        print('max: {}'.format(score_naive_score))
+    #rootnode_TD = RL_TDsearch.Game(target,1000,None,None).play()
+    #data_neibor, _, score_neibor = RL_least_neighbor.Game(target, 100, 5, None).play()
+    #utils.validation(target,data_naive_score)
+    #utils.validation(target, data_neibor)
+    sess = RL_history.build_neuralnetwork(20,20,1,5,False)
 
     with sess:
         saver=tf.train.Saver()
-        saver.restore(sess,'../TetrisPuzzle_RL_data/saver/model_2.ckpt')
-        data_back_value, _, score_value = Game(target, 100, 5, sess).play()
+        saver.restore(sess,'../TetrisPuzzle_RL_data/saver/frame1_rb5_tetris.ckpt')
+        data_back_value, _, score_value = RL_history.Game(target, 100, 5, 1, sess).play()
 
-        y_naive_v = sess.run('predictions:0',feed_dict={'input_puzzles:0':np.array([d[0] for d in data_naive_v]).astype(np.float32),'is_training:0': False})
-        y_naive_score = sess.run('predictions:0',feed_dict={'input_puzzles:0': np.array([d[0] for d in data_naive_score]).astype(np.float32),'is_training:0': False})
-        y_back_value = sess.run('predictions:0',feed_dict={'input_puzzles:0': np.array([d[0] for d in data_back_value]).astype(np.float32),'is_training:0': False})
+        yclass_naive_v = sess.run('predictions:0',
+                                  feed_dict={
+                                      'input_puzzles:0': np.array([d[0] for d in data_naive_v]).astype(np.float32),
+                                      'is_training:0': False})
+        yclass_naive_score = sess.run('predictions:0', feed_dict={
+                                    'input_puzzles:0': np.array([d[0] for d in data_naive_score]).astype(np.float32), 'is_training:0': False})
+        y_back_class = sess.run('predictions:0', feed_dict={
+                                'input_puzzles:0': np.array([d[0] for d in data_back_value]).astype(np.float32), 'is_training:0': False})
 
-    sess = RL_classification.build_neuralnetwork(20, 20)
+        y_naive_v = sess.run('predictions:0',feed_dict={'input_puzzles:0':np.array([np.reshape([data_naive_v[i][0],data_naive_v[i+1][0]],(800,)) for i in range(len(data_naive_v)-1) ]).astype(np.float32),'is_training:0': False})
+        #y_naive_score = sess.run('predictions:0',feed_dict={'input_puzzles:0': np.array([np.reshape([data_naive_score[i][0],data_naive_score[i+1][0]],(800,)) for i in range(len(data_naive_score)-1) ]).astype(np.float32),'is_training:0': False})
+        #y_back_value = sess.run('predictions:0',feed_dict={'input_puzzles:0': np.array([np.reshape([data_back_value[i][0],data_back_value[i+1][0]],(800,)) for i in range(len(data_back_value)-1) ]).astype(np.float32),'is_training:0': False})
+
+    sess = build_neuralnetwork(20, 20)
     with sess:
         saver = tf.train.Saver()
-        saver.restore(sess, '../TetrisPuzzle_RL_data/saver/supervised.ckpt')
-        data_back_class, _, score_class = RL_classification.Game(target, 100, 5, sess).play()
+        saver.restore(sess, '../TetrisPuzzle_RL_data/saver/supervised_tanh.ckpt')
+        data_back_class, _, score_class = Game(target, 100, 1, sess).play()
         yclass_naive_v = sess.run('predictions:0',
                              feed_dict={'input_puzzles:0': np.array([d[0] for d in data_naive_v]).astype(np.float32),
                                         'is_training:0': False})

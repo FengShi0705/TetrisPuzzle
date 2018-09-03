@@ -17,6 +17,7 @@ import operator
 import random
 import time
 from matplotlib.lines import Line2D as PatchLine
+from matplotlib.ticker import MaxNLocator
 
 
 """
@@ -122,7 +123,7 @@ def update_ax(fig, nodes, ax, pid):
         raise TypeError('update color with wrong nodes number')
 
     for (x,y) in nodes:
-        ax.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color=color))
+        ax.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color=color, alpha=0.5))
 
     plt.pause(0.01)
     return
@@ -142,18 +143,21 @@ def validation(target, gamedata):
     im = Image.new('RGB', (Tx_len, Ty_len), (255, 255, 255))
     ax1 = fig.add_subplot(111)
     if gamedata[-1][1]==1:
-        ax1.set_title('win')
+        ax1.set_title('')
     if gamedata[-1][1]==-1:
-        ax1.set_title('lose')
+        ax1.set_title('')
     ax1.set_xlim([-1, Tx_len + 1])
     ax1.set_ylim([-1, Ty_len + 1])
     ax1.invert_yaxis()
     ax1.imshow(im)
+    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
+    ax1.xaxis.set_ticks(np.arange(0, 21, 5))
+    ax1.yaxis.set_ticks(np.arange(0, 21, 5))
     for y in range(Ty_len):
         row = target[y]
         for x in range(Tx_len):
             if row[x] == 1:
-                ax1.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color='b'))
+                ax1.add_patch(patches.Rectangle((x, y), 0.88, 0.88, color='gray'))
 
     for i in range(0, len(gamedata)-1):
         nodes = []
@@ -188,7 +192,7 @@ def Mark_Wrong_square(target,solution,ax):
 
 
 def get_color(num):  # generate a random color
-    np.random.seed(num)
+    #np.random.seed(num)
     c = list(np.random.rand(3))
     c.append(1.0)
     return tuple(c)
