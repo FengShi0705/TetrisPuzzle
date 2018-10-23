@@ -2,254 +2,196 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="253b55da-389e-48df-b5ed-90444ae1eab9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/TetrisPuzzle.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TetrisPuzzle.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tiling_Torch/network.ipynb" beforeDir="false" />
     </list>
     <ignored path="TetrisPuzzle.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
-    <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
   </component>
-  <component name="DockManager">
-    <window id="2">
-      <content type="file-editors">
-        <state>
-          <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-            <file leaf-file-name="training.py" pinned="false" current-in-tab="false">
-              <entry file="file://$PROJECT_DIR$/training.py">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="2268">
-                    <caret line="128" column="22" selection-start-line="128" selection-start-column="12" selection-end-line="128" selection-end-column="22" />
-                    <folding>
-                      <element signature="e#0#25#0" expanded="true" />
-                    </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-            <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
-              <entry file="file://$PROJECT_DIR$/main.py">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="3546">
-                    <caret line="380" column="65" selection-start-line="380" selection-start-column="8" selection-end-line="380" selection-end-column="65" />
-                    <folding>
-                      <element signature="e#0#23#0" expanded="true" />
-                      <element signature="e#3397#6499#0" expanded="false" />
-                      <element signature="e#6535#9575#0" expanded="false" />
-                      <element signature="e#12818#15989#0" expanded="false" />
-                      <element signature="e#16025#19027#0" expanded="false" />
-                      <element signature="e#19063#22065#0" expanded="false" />
-                    </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-            <file leaf-file-name="data_preprocessing.py" pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/data_preprocessing.py">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="0">
-                    <caret line="52" column="54" selection-start-line="52" selection-start-column="54" selection-end-line="52" selection-end-column="54" />
-                    <folding>
-                      <element signature="e#47#58#0" expanded="true" />
-                    </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-            <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
-              <entry file="file://$PROJECT_DIR$/utils.py">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="3654">
-                    <caret line="210" column="0" selection-start-line="210" selection-start-column="0" selection-end-line="210" selection-end-column="0" />
-                    <folding>
-                      <element signature="e#377#408#0" expanded="true" />
-                    </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-          </leaf>
-        </state>
-      </content>
-    </window>
+  <component name="FUSProjectUsageTrigger">
+    <session id="-1309001063">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="2" />
+          <entry key="project.open.time.16" value="1" />
+          <entry key="project.open.time.21" value="1" />
+          <entry key="project.opened" value="2" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="Python Console" value="188" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="Python" value="188" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open" />
+      <usages-collector id="statistics.file.extensions.open" />
+      <usages-collector id="statistics.vcs.git.usages" />
+    </session>
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FavoritesManager">
     <favorites_list name="TetrisPuzzle" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="RL.py" pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RL.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="100" column="22" selection-start-line="100" selection-start-column="22" selection-end-line="100" selection-end-column="22" />
-              <folding />
+            <state relative-caret-position="1411">
+              <caret line="100" selection-start-line="100" selection-end-line="100" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="try_supervised.py" pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/try_supervised.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="431">
+            <state relative-caret-position="6528">
               <caret line="572" column="27" selection-start-line="572" selection-start-column="27" selection-end-line="572" selection-end-column="27" />
               <folding>
                 <element signature="e#73#96#0" expanded="true" />
-                <element signature="e#349#4219#0" expanded="false" />
-                <element signature="e#4347#7501#0" expanded="false" />
-                <element signature="e#4360#7289#0" expanded="false" />
-                <element signature="e#4362#4490#0" expanded="false" />
-                <element signature="e#4516#4644#0" expanded="false" />
-                <element signature="e#4670#4798#0" expanded="false" />
-                <element signature="e#4824#4952#0" expanded="false" />
-                <element signature="e#4978#5106#0" expanded="false" />
-                <element signature="e#5132#5260#0" expanded="false" />
-                <element signature="e#5286#5414#0" expanded="false" />
-                <element signature="e#5440#5568#0" expanded="false" />
-                <element signature="e#5594#5722#0" expanded="false" />
-                <element signature="e#5748#5876#0" expanded="false" />
-                <element signature="e#5902#6030#0" expanded="false" />
-                <element signature="e#6056#6184#0" expanded="false" />
-                <element signature="e#6210#6338#0" expanded="false" />
-                <element signature="e#6364#6492#0" expanded="false" />
-                <element signature="e#6518#6646#0" expanded="false" />
-                <element signature="e#6672#6800#0" expanded="false" />
-                <element signature="e#6826#6954#0" expanded="false" />
-                <element signature="e#6980#7108#0" expanded="false" />
-                <element signature="e#7134#7262#0" expanded="false" />
+                <element signature="e#349#4219#0" />
+                <element signature="e#4347#7501#0" />
+                <element signature="e#4360#7289#0" />
+                <element signature="e#4362#4490#0" />
+                <element signature="e#4516#4644#0" />
+                <element signature="e#4670#4798#0" />
+                <element signature="e#4824#4952#0" />
+                <element signature="e#4978#5106#0" />
+                <element signature="e#5132#5260#0" />
+                <element signature="e#5286#5414#0" />
+                <element signature="e#5440#5568#0" />
+                <element signature="e#5594#5722#0" />
+                <element signature="e#5748#5876#0" />
+                <element signature="e#5902#6030#0" />
+                <element signature="e#6056#6184#0" />
+                <element signature="e#6210#6338#0" />
+                <element signature="e#6364#6492#0" />
+                <element signature="e#6518#6646#0" />
+                <element signature="e#6672#6800#0" />
+                <element signature="e#6826#6954#0" />
+                <element signature="e#6980#7108#0" />
+                <element signature="e#7134#7262#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RL_history.py" pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RL_history.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="183">
+            <state relative-caret-position="1305">
               <caret line="615" column="8" selection-start-line="615" selection-start-column="8" selection-end-line="615" selection-end-column="8" />
               <folding>
                 <element signature="e#119#137#0" expanded="true" />
-                <element signature="e#603#4583#0" expanded="false" />
-                <element signature="e#4711#7865#0" expanded="false" />
-                <element signature="e#4724#7653#0" expanded="false" />
-                <element signature="e#4726#4854#0" expanded="false" />
-                <element signature="e#4880#5008#0" expanded="false" />
-                <element signature="e#5034#5162#0" expanded="false" />
-                <element signature="e#5188#5316#0" expanded="false" />
-                <element signature="e#5342#5470#0" expanded="false" />
-                <element signature="e#5496#5624#0" expanded="false" />
-                <element signature="e#5650#5778#0" expanded="false" />
-                <element signature="e#5804#5932#0" expanded="false" />
-                <element signature="e#5958#6086#0" expanded="false" />
-                <element signature="e#6112#6240#0" expanded="false" />
-                <element signature="e#6266#6394#0" expanded="false" />
-                <element signature="e#6420#6548#0" expanded="false" />
-                <element signature="e#6574#6702#0" expanded="false" />
-                <element signature="e#6728#6856#0" expanded="false" />
-                <element signature="e#6882#7010#0" expanded="false" />
-                <element signature="e#7036#7164#0" expanded="false" />
-                <element signature="e#7190#7318#0" expanded="false" />
-                <element signature="e#7344#7472#0" expanded="false" />
-                <element signature="e#7498#7626#0" expanded="false" />
-                <element signature="e#14576#14672#0" expanded="false" />
-                <element signature="e#24692#26263#0" expanded="false" />
-                <element signature="e#24734#25150#0" expanded="false" />
-                <element signature="e#25973#26201#0" expanded="false" />
-                <element signature="e#26329#26513#0" expanded="false" />
-                <element signature="e#26802#26986#0" expanded="false" />
-                <element signature="e#27021#27228#0" expanded="false" />
+                <element signature="e#603#4583#0" />
+                <element signature="e#4711#7865#0" />
+                <element signature="e#4724#7653#0" />
+                <element signature="e#4726#4854#0" />
+                <element signature="e#4880#5008#0" />
+                <element signature="e#5034#5162#0" />
+                <element signature="e#5188#5316#0" />
+                <element signature="e#5342#5470#0" />
+                <element signature="e#5496#5624#0" />
+                <element signature="e#5650#5778#0" />
+                <element signature="e#5804#5932#0" />
+                <element signature="e#5958#6086#0" />
+                <element signature="e#6112#6240#0" />
+                <element signature="e#6266#6394#0" />
+                <element signature="e#6420#6548#0" />
+                <element signature="e#6574#6702#0" />
+                <element signature="e#6728#6856#0" />
+                <element signature="e#6882#7010#0" />
+                <element signature="e#7036#7164#0" />
+                <element signature="e#7190#7318#0" />
+                <element signature="e#7344#7472#0" />
+                <element signature="e#7498#7626#0" />
+                <element signature="e#14576#14672#0" />
+                <element signature="e#24692#26263#0" />
+                <element signature="e#24734#25150#0" />
+                <element signature="e#25973#26201#0" />
+                <element signature="e#26329#26513#0" />
+                <element signature="e#26802#26986#0" />
+                <element signature="e#27021#27228#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RL_TDsearch.py" pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RL_TDsearch.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="54">
+            <state relative-caret-position="51">
               <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
-              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mysolution.py" pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mysolution.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="54">
+            <state relative-caret-position="51">
               <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
-              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RL_least_neighbor.py" pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RL_least_neighbor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="122" selection-start-line="0" selection-start-column="122" selection-end-line="0" selection-end-column="122" />
+            <state>
+              <caret column="122" selection-start-column="122" selection-end-column="122" />
               <folding>
                 <element signature="e#151#174#0" expanded="true" />
-                <element signature="e#322#746#0" expanded="false" />
-                <element signature="e#792#4633#0" expanded="false" />
-                <element signature="e#7441#8981#0" expanded="false" />
-                <element signature="e#10077#10173#0" expanded="false" />
-                <element signature="e#15380#17139#0" expanded="false" />
-                <element signature="e#15380#15662#1" expanded="false" />
-                <element signature="e#15703#16654#0" expanded="false" />
-                <element signature="e#17168#18124#0" expanded="false" />
-                <element signature="e#18159#19188#0" expanded="false" />
-                <element signature="e#18452#18621#0" expanded="false" />
-                <element signature="e#19255#24693#0" expanded="false" />
-                <element signature="e#24737#24796#0" expanded="false" />
-                <marker date="1516818123561" expanded="true" signature="18264:18389" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="18488:18620" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="18860:19003" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="20291:20420" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="20634:20744" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="20882:21027" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="21043:21156" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="21283:21436" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="21567:21689" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="22377:22538" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="23070:23218" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="23406:23517" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="23564:23697" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="23961:24084" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="24209:24312" ph="..." />
-                <marker date="1516818123561" expanded="true" signature="24535:24676" ph="..." />
+                <element signature="e#322#746#0" />
+                <element signature="e#792#4633#0" />
+                <element signature="e#7441#8981#0" />
+                <element signature="e#10077#10173#0" />
+                <element signature="e#15380#17139#0" />
+                <element signature="e#15380#15662#1" />
+                <element signature="e#15703#16654#0" />
+                <element signature="e#17168#18124#0" />
+                <element signature="e#18159#19188#0" />
+                <element signature="e#18452#18621#0" />
+                <element signature="e#19255#24693#0" />
+                <element signature="e#24737#24796#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RL_realplay.py" pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RL_realplay.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="92" selection-start-line="0" selection-start-column="92" selection-end-line="0" selection-end-column="92" />
+            <state>
+              <caret column="92" selection-start-column="92" selection-end-column="92" />
               <folding>
                 <element signature="e#98#144#0" expanded="true" />
-                <element signature="e#3054#3150#0" expanded="false" />
+                <element signature="e#3054#3150#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="multi_armed_bandit.py" pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/multi_armed_bandit.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="306">
+              <caret line="20" selection-start-line="20" selection-end-line="20" />
             </state>
           </provider>
         </entry>
@@ -311,181 +253,48 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1936" />
-    <option name="height" value="1056" />
-  </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
-    <OptionsSetting value="true" id="Add" />
-    <OptionsSetting value="true" id="Remove" />
-    <OptionsSetting value="true" id="Checkout" />
-    <OptionsSetting value="true" id="Update" />
-    <OptionsSetting value="true" id="Status" />
-    <OptionsSetting value="true" id="Edit" />
-    <ConfirmationsSetting value="0" id="Add" />
-    <ConfirmationsSetting value="0" id="Remove" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="65" />
+    <option name="y" value="64" />
+    <option name="width" value="1375" />
+    <option name="height" value="836" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
-      <flattenPackages />
-      <showMembers />
-      <showModules />
-      <showLibraryContents />
-      <hideEmptyPackages />
-      <abbreviatePackageNames />
-      <autoscrollToSource />
-      <autoscrollFromSource />
-      <sortByType />
-      <manualOrder />
+    <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TetrisPuzzle" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TetrisPuzzle" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TetrisPuzzle" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
+          <expand>
+            <path>
+              <item name="TetrisPuzzle" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TetrisPuzzle" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
         </subPane>
       </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-    <property name="settings.editor.splitter.proportion" value="0.2" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
   </component>
   <component name="RunManager" selected="Python.clock">
-    <configuration default="false" name="RL" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RL.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="try_supervised" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/try_supervised.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="RL_least_neighbor" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RL_least_neighbor.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="RL_history" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RL_history.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="clock" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/clock.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="Tox" factoryName="Tox">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <method />
-    </configuration>
     <configuration default="true" type="tests" factoryName="Attests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -505,111 +314,127 @@
       <option name="USE_PATTERN" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="tests" factoryName="Doctests">
+    <configuration name="RL" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="TetrisPuzzle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RL.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
-    <configuration default="true" type="tests" factoryName="Nosetests">
+    <configuration name="RL_history" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="TetrisPuzzle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="PARAMS" value="" />
-      <option name="USE_PARAM" value="false" />
-      <method />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RL_history.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
-    <configuration default="true" type="tests" factoryName="Unittests">
+    <configuration name="RL_least_neighbor" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="TetrisPuzzle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="PUREUNITTEST" value="true" />
-      <option name="PARAMS" value="" />
-      <option name="USE_PARAM" value="false" />
-      <method />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RL_least_neighbor.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
-    <configuration default="true" type="tests" factoryName="py.test">
+    <configuration name="clock" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="TetrisPuzzle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TetrisPuzzle" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="testToRun" value="" />
-      <option name="keywords" value="" />
-      <option name="params" value="" />
-      <option name="USE_PARAM" value="false" />
-      <option name="USE_KEYWORD" value="false" />
-      <method />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/clock.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
-    <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.RL" />
-      <item index="1" class="java.lang.String" itemvalue="Python.try_supervised" />
-      <item index="2" class="java.lang.String" itemvalue="Python.RL_least_neighbor" />
-      <item index="3" class="java.lang.String" itemvalue="Python.RL_history" />
-      <item index="4" class="java.lang.String" itemvalue="Python.clock" />
+    <configuration name="try_supervised" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="TetrisPuzzle" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/try_supervised.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.RL" />
+      <item itemvalue="Python.try_supervised" />
+      <item itemvalue="Python.RL_least_neighbor" />
+      <item itemvalue="Python.RL_history" />
+      <item itemvalue="Python.clock" />
     </list>
     <recent_temporary>
-      <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.clock" />
-        <item index="1" class="java.lang.String" itemvalue="Python.try_supervised" />
-        <item index="2" class="java.lang.String" itemvalue="Python.RL_history" />
-        <item index="3" class="java.lang.String" itemvalue="Python.RL" />
-        <item index="4" class="java.lang.String" itemvalue="Python.RL_least_neighbor" />
+      <list>
+        <item itemvalue="Python.clock" />
+        <item itemvalue="Python.try_supervised" />
+        <item itemvalue="Python.RL_history" />
+        <item itemvalue="Python.RL" />
+        <item itemvalue="Python.RL_least_neighbor" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="ShelveChangesManager" show_recycled="false">
-    <option name="remove_strategy" value="false" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -625,45 +450,44 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="false" />
+    <frame x="65" y="-4" width="1375" height="904" extended-state="6" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17966281" sideWeight="0.4951049" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Python Console" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36688313" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295711" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.41837838" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32683983" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18598525" sideWeight="0.5048951" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4004329" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32972974" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" order="0" sideWeight="0.4951049" visible="true" weight="0.17899409" />
+      <window_info id="Structure" order="1" weight="0.25" />
+      <window_info id="Favorites" order="2" sideWeight="0.5048951" side_tool="true" weight="0.18598525" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32972974" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.41837838" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4004329" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32860824" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="8" visible="true" weight="0.33505154" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32683983" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
     <layout-to-restore>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24242425" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18651211" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" order="0" visible="true" weight="0.18651211" />
+      <window_info id="Structure" order="1" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="8" visible="true" weight="0.24242425" />
+      <window_info anchor="bottom" id="Version Control" order="9" />
+      <window_info anchor="bottom" id="Terminal" order="10" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -718,33 +542,25 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="106" />
     </breakpoint-manager>
-    <watches-manager />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/for_issace.py" />
     <entry file="file://$PROJECT_DIR$/solution_v7.py" />
     <entry file="file://$PROJECT_DIR$/three_samples_v2.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-972">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
+        <state relative-caret-position="-972" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main_v3.py" />
     <entry file="file://$PROJECT_DIR$/null_samples.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-17550">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
+        <state relative-caret-position="-17550" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/null_samples_v2.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2430">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
+        <state relative-caret-position="-2430" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test_results.txt" />
@@ -763,16 +579,12 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/version_notes.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/real_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="789">
-          <caret line="59" column="0" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
+          <caret line="59" selection-start-line="59" selection-end-line="59" />
         </state>
       </provider>
     </entry>
@@ -792,7 +604,7 @@
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevconsole.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="770">
-          <caret line="505" column="0" selection-start-line="505" selection-start-column="0" selection-end-line="505" selection-end-column="0" />
+          <caret line="505" selection-start-line="505" selection-end-line="505" />
         </state>
       </provider>
     </entry>
@@ -816,11 +628,7 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/trydistributed.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/RLtrysamples_.txt" />
     <entry file="file://$PROJECT_DIR$/RL_2.txt" />
@@ -829,25 +637,7 @@
     <entry file="file://$PROJECT_DIR$/performance_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
-          <caret line="70" column="0" selection-start-line="70" selection-start-column="0" selection-end-line="71" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/multi_armed_bandit.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/training.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2268">
-          <caret line="128" column="22" selection-start-line="128" selection-start-column="12" selection-end-line="128" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
+          <caret line="70" selection-start-line="70" selection-end-line="71" selection-end-column="10" />
         </state>
       </provider>
     </entry>
@@ -858,48 +648,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RL_least_neighbor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="122" selection-start-line="0" selection-start-column="122" selection-end-line="0" selection-end-column="122" />
-          <folding>
-            <element signature="e#151#174#0" expanded="true" />
-            <element signature="e#322#746#0" expanded="false" />
-            <element signature="e#792#4633#0" expanded="false" />
-            <element signature="e#7441#8981#0" expanded="false" />
-            <element signature="e#10077#10173#0" expanded="false" />
-            <element signature="e#15380#17139#0" expanded="false" />
-            <element signature="e#15380#15662#1" expanded="false" />
-            <element signature="e#15703#16654#0" expanded="false" />
-            <element signature="e#17168#18124#0" expanded="false" />
-            <element signature="e#18159#19188#0" expanded="false" />
-            <element signature="e#18452#18621#0" expanded="false" />
-            <element signature="e#19255#24693#0" expanded="false" />
-            <element signature="e#24737#24796#0" expanded="false" />
-            <marker date="1516818123561" expanded="true" signature="18264:18389" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="18488:18620" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="18860:19003" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="20291:20420" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="20634:20744" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="20882:21027" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="21043:21156" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="21283:21436" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="21567:21689" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="22377:22538" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="23070:23218" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="23406:23517" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="23564:23697" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="23961:24084" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="24209:24312" ph="..." />
-            <marker date="1516818123561" expanded="true" signature="24535:24676" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/RL_naive_V.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="24">
-          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="48" />
+          <caret line="1" selection-start-line="1" selection-end-line="1" selection-end-column="48" />
         </state>
       </provider>
     </entry>
@@ -910,172 +662,186 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RL_realplay.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="92" selection-start-line="0" selection-start-column="92" selection-end-line="0" selection-end-column="92" />
-          <folding>
-            <element signature="e#98#144#0" expanded="true" />
-            <element signature="e#3054#3150#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tryminist.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="45" selection-start-line="0" selection-start-column="45" selection-end-line="0" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3654">
-          <caret line="210" column="0" selection-start-line="210" selection-start-column="0" selection-end-line="210" selection-end-column="0" />
-          <folding>
-            <element signature="e#377#408#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3546">
-          <caret line="380" column="65" selection-start-line="380" selection-start-column="8" selection-end-line="380" selection-end-column="65" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-            <element signature="e#3397#6499#0" expanded="false" />
-            <element signature="e#6535#9575#0" expanded="false" />
-            <element signature="e#12818#15989#0" expanded="false" />
-            <element signature="e#16025#19027#0" expanded="false" />
-            <element signature="e#19063#22065#0" expanded="false" />
-          </folding>
+        <state>
+          <caret column="45" selection-start-column="45" selection-end-column="45" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
-          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/Program Files/Python35_x64/Lib/site-packages/tensorflow/python/framework/ops.py">
+    <entry file="file://D:/Program Files/Python35_x64/Lib/site-packages/tensorflow/python/framework/ops.py" />
+    <entry file="file://$PROJECT_DIR$/clock.py" />
+    <entry file="file://$PROJECT_DIR$/training.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="134">
-          <caret line="2707" column="0" selection-start-line="2707" selection-start-column="0" selection-end-line="2707" selection-end-column="0" />
+        <state relative-caret-position="2142">
+          <caret line="128" column="22" selection-start-line="128" selection-start-column="12" selection-end-line="128" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3349">
+          <caret line="380" column="65" selection-start-line="380" selection-start-column="8" selection-end-line="380" selection-end-column="65" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#3397#6499#0" />
+            <element signature="e#6535#9575#0" />
+            <element signature="e#12818#15989#0" />
+            <element signature="e#16025#19027#0" />
+            <element signature="e#19063#22065#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3434">
+          <caret line="210" selection-start-line="210" selection-end-line="210" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/data_preprocessing.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
+        <state relative-caret-position="17">
           <caret line="52" column="54" selection-start-line="52" selection-start-column="54" selection-end-line="52" selection-end-column="54" />
-          <folding>
-            <element signature="e#47#58#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/RL.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="100" column="22" selection-start-line="100" selection-start-column="22" selection-end-line="100" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/RL_TDsearch.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/clock.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" column="57" selection-start-line="5" selection-start-column="57" selection-end-line="5" selection-end-column="57" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mysolution.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
-          <folding />
+        <state relative-caret-position="1411">
+          <caret line="100" selection-start-line="100" selection-end-line="100" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/try_supervised.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="431">
+        <state relative-caret-position="6528">
           <caret line="572" column="27" selection-start-line="572" selection-start-column="27" selection-end-line="572" selection-end-column="27" />
           <folding>
             <element signature="e#73#96#0" expanded="true" />
-            <element signature="e#349#4219#0" expanded="false" />
-            <element signature="e#4347#7501#0" expanded="false" />
-            <element signature="e#4360#7289#0" expanded="false" />
-            <element signature="e#4362#4490#0" expanded="false" />
-            <element signature="e#4516#4644#0" expanded="false" />
-            <element signature="e#4670#4798#0" expanded="false" />
-            <element signature="e#4824#4952#0" expanded="false" />
-            <element signature="e#4978#5106#0" expanded="false" />
-            <element signature="e#5132#5260#0" expanded="false" />
-            <element signature="e#5286#5414#0" expanded="false" />
-            <element signature="e#5440#5568#0" expanded="false" />
-            <element signature="e#5594#5722#0" expanded="false" />
-            <element signature="e#5748#5876#0" expanded="false" />
-            <element signature="e#5902#6030#0" expanded="false" />
-            <element signature="e#6056#6184#0" expanded="false" />
-            <element signature="e#6210#6338#0" expanded="false" />
-            <element signature="e#6364#6492#0" expanded="false" />
-            <element signature="e#6518#6646#0" expanded="false" />
-            <element signature="e#6672#6800#0" expanded="false" />
-            <element signature="e#6826#6954#0" expanded="false" />
-            <element signature="e#6980#7108#0" expanded="false" />
-            <element signature="e#7134#7262#0" expanded="false" />
+            <element signature="e#349#4219#0" />
+            <element signature="e#4347#7501#0" />
+            <element signature="e#4360#7289#0" />
+            <element signature="e#4362#4490#0" />
+            <element signature="e#4516#4644#0" />
+            <element signature="e#4670#4798#0" />
+            <element signature="e#4824#4952#0" />
+            <element signature="e#4978#5106#0" />
+            <element signature="e#5132#5260#0" />
+            <element signature="e#5286#5414#0" />
+            <element signature="e#5440#5568#0" />
+            <element signature="e#5594#5722#0" />
+            <element signature="e#5748#5876#0" />
+            <element signature="e#5902#6030#0" />
+            <element signature="e#6056#6184#0" />
+            <element signature="e#6210#6338#0" />
+            <element signature="e#6364#6492#0" />
+            <element signature="e#6518#6646#0" />
+            <element signature="e#6672#6800#0" />
+            <element signature="e#6826#6954#0" />
+            <element signature="e#6980#7108#0" />
+            <element signature="e#7134#7262#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RL_TDsearch.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="37" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mysolution.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RL_least_neighbor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="122" selection-start-column="122" selection-end-column="122" />
+          <folding>
+            <element signature="e#151#174#0" expanded="true" />
+            <element signature="e#322#746#0" />
+            <element signature="e#792#4633#0" />
+            <element signature="e#7441#8981#0" />
+            <element signature="e#10077#10173#0" />
+            <element signature="e#15380#17139#0" />
+            <element signature="e#15380#15662#1" />
+            <element signature="e#15703#16654#0" />
+            <element signature="e#17168#18124#0" />
+            <element signature="e#18159#19188#0" />
+            <element signature="e#18452#18621#0" />
+            <element signature="e#19255#24693#0" />
+            <element signature="e#24737#24796#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RL_realplay.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="92" selection-start-column="92" selection-end-column="92" />
+          <folding>
+            <element signature="e#98#144#0" expanded="true" />
+            <element signature="e#3054#3150#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/multi_armed_bandit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="20" selection-start-line="20" selection-end-line="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/RL_history.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
+        <state relative-caret-position="1305">
           <caret line="615" column="8" selection-start-line="615" selection-start-column="8" selection-end-line="615" selection-end-column="8" />
           <folding>
             <element signature="e#119#137#0" expanded="true" />
-            <element signature="e#603#4583#0" expanded="false" />
-            <element signature="e#4711#7865#0" expanded="false" />
-            <element signature="e#4724#7653#0" expanded="false" />
-            <element signature="e#4726#4854#0" expanded="false" />
-            <element signature="e#4880#5008#0" expanded="false" />
-            <element signature="e#5034#5162#0" expanded="false" />
-            <element signature="e#5188#5316#0" expanded="false" />
-            <element signature="e#5342#5470#0" expanded="false" />
-            <element signature="e#5496#5624#0" expanded="false" />
-            <element signature="e#5650#5778#0" expanded="false" />
-            <element signature="e#5804#5932#0" expanded="false" />
-            <element signature="e#5958#6086#0" expanded="false" />
-            <element signature="e#6112#6240#0" expanded="false" />
-            <element signature="e#6266#6394#0" expanded="false" />
-            <element signature="e#6420#6548#0" expanded="false" />
-            <element signature="e#6574#6702#0" expanded="false" />
-            <element signature="e#6728#6856#0" expanded="false" />
-            <element signature="e#6882#7010#0" expanded="false" />
-            <element signature="e#7036#7164#0" expanded="false" />
-            <element signature="e#7190#7318#0" expanded="false" />
-            <element signature="e#7344#7472#0" expanded="false" />
-            <element signature="e#7498#7626#0" expanded="false" />
-            <element signature="e#14576#14672#0" expanded="false" />
-            <element signature="e#24692#26263#0" expanded="false" />
-            <element signature="e#24734#25150#0" expanded="false" />
-            <element signature="e#25973#26201#0" expanded="false" />
-            <element signature="e#26329#26513#0" expanded="false" />
-            <element signature="e#26802#26986#0" expanded="false" />
-            <element signature="e#27021#27228#0" expanded="false" />
+            <element signature="e#603#4583#0" />
+            <element signature="e#4711#7865#0" />
+            <element signature="e#4724#7653#0" />
+            <element signature="e#4726#4854#0" />
+            <element signature="e#4880#5008#0" />
+            <element signature="e#5034#5162#0" />
+            <element signature="e#5188#5316#0" />
+            <element signature="e#5342#5470#0" />
+            <element signature="e#5496#5624#0" />
+            <element signature="e#5650#5778#0" />
+            <element signature="e#5804#5932#0" />
+            <element signature="e#5958#6086#0" />
+            <element signature="e#6112#6240#0" />
+            <element signature="e#6266#6394#0" />
+            <element signature="e#6420#6548#0" />
+            <element signature="e#6574#6702#0" />
+            <element signature="e#6728#6856#0" />
+            <element signature="e#6882#7010#0" />
+            <element signature="e#7036#7164#0" />
+            <element signature="e#7190#7318#0" />
+            <element signature="e#7344#7472#0" />
+            <element signature="e#7498#7626#0" />
+            <element signature="e#14576#14672#0" />
+            <element signature="e#24692#26263#0" />
+            <element signature="e#24734#25150#0" />
+            <element signature="e#25973#26201#0" />
+            <element signature="e#26329#26513#0" />
+            <element signature="e#26802#26986#0" />
+            <element signature="e#27021#27228#0" />
           </folding>
         </state>
       </provider>
